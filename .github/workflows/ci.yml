@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install FFmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: release
+
+      - name: Install Scenecraft in Virtual Environment (Linux)
+        if: runner.os != 'Windows'
+        run: |
+          python -m venv .ci-venv
+          .ci-venv/bin/pip install --upgrade pip
+          .ci-venv/bin/pip install -e ".[dev]"
+          .ci-venv/bin/pip install mcp
+          echo "$GITHUB_WORKSPACE/.ci-venv/bin" >> $GITHUB_PATH
+
+      - name: Install Scenecraft in Virtual Environment (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          python -m venv .ci-venv
+          .ci-venv\Scripts\python -m pip install --upgrade pip
+          .ci-venv\Scripts\pip install -e ".[dev]"
+          .ci-venv\Scripts\pip install mcp
+          echo "$env:GITHUB_WORKSPACE\.ci-venv\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Verify CLI Doctor Self-Test
+        run: |
+          scenecraft doctor || true
+
+      - name: Run Unit Tests
+        run: |
+          python -m unittest discover tests -v
+
+      - name: Run Tiny E2E Render Test
+        run: |
+          python -m unittest tests/test_e2e_tiny.py -v
+
+  archlinux:
+    name: Test (Arch Linux Container)
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Install system dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git python ffmpeg gcc
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Test in Virtual Environment
+        run: |
+          python -m venv .ci-venv
+          .ci-venv/bin/pip install --upgrade pip
+          .ci-venv/bin/pip install -e ".[dev]"
+          .ci-venv/bin/pip install mcp
+          .ci-venv/bin/scenecraft doctor || true
+          .ci-venv/bin/python -m unittest discover tests -v
+          .ci-venv/bin/python -m unittest tests/test_e2e_tiny.py -v

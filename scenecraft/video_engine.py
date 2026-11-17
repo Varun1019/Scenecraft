@@ -32,13 +32,14 @@ EXPORT_PROFILE_VERTICAL = {
 
 
 def escape_ffmpeg_filter_path(path: Path | str) -> str:
-    """Escape a path for FFmpeg filtergraph strings (e.g. ass, subtitles).
+    """Escape a path for FFmpeg filtergraph strings (e.g. ass=filename='...':fontsdir='...').
 
-    Normalizes backslashes to forward slashes, escapes colons (for Windows drive letters),
-    and escapes single quotes.
+    Normalizes backslashes to forward slashes, escapes colons (for Windows drive letters
+    and FFmpeg option separators), and escapes single quotes.
+    Does NOT backslash-escape spaces because paths in FFmpeg filter parameters are single-quoted.
     """
-    resolved = str(Path(path).resolve())
-    normalized = resolved.replace("\\", "/")
+    path_str = str(path)
+    normalized = path_str.replace("\\", "/")
     escaped = normalized.replace(":", "\\:").replace("'", "\\'")
     return escaped
 

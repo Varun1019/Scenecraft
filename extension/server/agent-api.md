@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-Flow Studio Pro provides a secure, loopback-only companion service (`127.0.0.1:8792`) allowing compatible AI coding agents (Antigravity, Claude Code, Cursor, Windsurf) to automate image and video generation directly within your authenticated Google Flow browser session.
+Flow Studio Pro provides a secure, loopback-only companion service (`127.0.0.1:8795`) allowing compatible AI coding agents (Antigravity, Claude Code, Cursor, Windsurf) to automate image and video generation directly within your authenticated Google Flow browser session.
 
 ## 2. Model Context Protocol (MCP) Tools
 
@@ -39,7 +39,7 @@ node server/mcp-server.cjs
 
 ## 3. Localhost REST API
 
-Base URL: `http://127.0.0.1:8792`
+Base URL: `http://127.0.0.1:8795`
 
 ### Endpoints
 

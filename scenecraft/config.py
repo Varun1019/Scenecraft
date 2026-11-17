@@ -99,6 +99,21 @@ class ScenecraftConfig:
         if env_encoder:
             cfg_dict["encoder"] = env_encoder
 
+        for key, field_def in cls.__dataclass_fields__.items():
+            env_val = os.environ.get(f"SCENECRAFT_{key.upper()}")
+            if env_val is not None:
+                try:
+                    if field_def.type is int or field_def.type == "int":
+                        cfg_dict[key] = int(env_val)
+                    elif field_def.type is float or field_def.type == "float":
+                        cfg_dict[key] = float(env_val)
+                    elif field_def.type is bool or field_def.type == "bool":
+                        cfg_dict[key] = env_val.lower() in ("true", "1", "yes")
+                    else:
+                        cfg_dict[key] = env_val
+                except (ValueError, TypeError):
+                    cfg_dict[key] = env_val
+
         # Convert paths if present in dict
         if "cache_dir" in cfg_dict:
             cfg_dict["cache_dir"] = Path(cfg_dict["cache_dir"])
