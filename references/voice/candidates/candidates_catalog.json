@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "number": 1,
+      "id": "b77c1cca",
+      "name": "StoryForge - The Documentarian",
+      "tone": "Low American Baritone — calm, mature, authoritative, investigative",
+      "speed": 0.88,
+      "seed": 42101,
+      "file": "references/voice/candidates/demo_voice_1_documentarian.wav"
+    },
+    {
+      "number": 2,
+      "id": "e05716f0",
+      "name": "StoryForge - Midnight Noir",
+      "tone": "Warm Intimate American — smooth, eerie, conversational, quiet tension",
+      "speed": 0.88,
+      "seed": 63202,
+      "file": "references/voice/candidates/demo_voice_2_midnight_noir.wav"
+    },
+    {
+      "number": 3,
+      "id": "2f7eb12a",
+      "name": "StoryForge - Deep Chronicler",
+      "tone": "Solemn British Baritone — deep, dramatic restraint, classic mystery",
+      "speed": 0.88,
+      "seed": 84303,
+      "file": "references/voice/candidates/demo_voice_3_deep_chronicler.wav"
+    }
+  ]
+}

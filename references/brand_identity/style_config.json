@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "character_name": "The Wanderer",
+  "archetype": "Red Beanie Stickman",
+  "character_spec": {
+    "name": "The Wanderer",
+    "role": "Protagonist",
+    "visual_identity": "Minimalist dark comic stickman figure with oversized warm ivory oval head, two vertical black pill eyes, neutral slit mouth, thin black stick limbs and torso",
+    "clothing": "Brick-red ribbed knit beanie, thick warm knitted scarf with alternating horizontal mustard-yellow and rust-maroon stripes with fringe, dark charcoal short-sleeved t-shirt",
+    "distinguishing_features": "Warm cream oval head, brick-red folded-brim knit beanie, mustard-and-maroon striped scarf, solid black stick limbs, bold clean black outlines",
+    "color_palette": "Brick-red (#A03325), Warm ivory (#F9E8CE), Mustard gold (#DFA028), Rust maroon (#8C2B1D), Dark charcoal (#454242), Carbon black (#18181A)",
+    "is_stickman": true
+  },
+  "color_palette_hex": {
+    "beanie": "#A03325",
+    "head_skin": "#F9E8CE",
+    "scarf_stripe_primary": "#DFA028",
+    "scarf_stripe_secondary": "#8C2B1D",
+    "tshirt": "#454242",
+    "linework": "#18181A",
+    "eyes": "#0E0E10",
+    "ambient_shadow": "#2B2D38"
+  },
+  "illustration_rules": {
+    "style_type": "2D animated dark comic cel-shaded illustration",
+    "linework": "Clean, bold, uniform black outlines, closed vector contour styling",
+    "shading": "Subtle cel-shading with soft directional under-brim and under-scarf shadow",
+    "texture": "Knitted ribbing on beanie brim and scarf, flat smooth fills on skin and shirt",
+    "full_bleed": true,
+    "no_borders": true
+  },
+  "references": {
+    "primary_full_body": "references/brand_identity/ref_character_full_body.jpg",
+    "primary_close_up": "references/brand_identity/ref_character_close_up.jpg",
+    "three_quarter_view": "references/brand_identity/ref_character_three_quarter.jpg",
+    "back_view": "references/brand_identity/ref_character_back_view.jpg",
+    "shorts_context": "references/brand_identity/ref_niche_shorts_context.jpg"
+  },
+  "prompt_injection": {
+    "character_anchor": "The Wanderer, an original 2D dark comic stickman protagonist. Smooth warm ivory oval head, two small vertical black pill-shaped eyes, simple slit mouth. Wearing a distinctive chunky brick-red ribbed knit beanie, a thick winter scarf with alternating mustard-gold and rust-maroon horizontal stripes and fringe, and a dark charcoal short-sleeved t-shirt over thin black stick arms and legs.",
+    "style_anchor": "Cinematic 2D graphic-novel dark comic illustration, animated storybook thriller style. Crisp bold black outlines, clean cel-shaded fills, rich directional lighting, edge-to-edge full canvas illustration, completely borderless.",
+    "strict_negative": "Absolutely NO white borders, NO decorative frames, NO black letterbox bars, NO split-screen panels, NO comic speech bubbles, NO text captions, NO 3D photorealism, NO plain white hairless un-beanie figures."
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "style_name": "Earthy Explainer (Hand-Drawn Animated Explainer)",
+  "character_name": "The Wanderer",
+  "archetype": "Red Beanie Stickman (Preserved Original Identity)",
+  "character_spec": {
+    "name": "The Wanderer",
+    "role": "Protagonist",
+    "visual_identity": "Minimalist hand-drawn stickman protagonist with oversized warm ivory oval head, two vertical black pill eyes, neutral slit mouth, thin black ink stick limbs and torso",
+    "clothing": "Brick-red ribbed knit beanie, thick warm knitted scarf with alternating horizontal mustard-yellow and rust-maroon stripes with fringe, dark charcoal short-sleeved t-shirt",
+    "distinguishing_features": "Smooth warm ivory oval head, brick-red folded-brim knit beanie, mustard-and-maroon striped scarf, solid black stick limbs, uniform dark ink outlines",
+    "color_palette": "Brick-red (#A03325), Warm ivory (#F4EBD9), Mustard gold (#D4A017), Rust maroon (#8C2B1D), Dark charcoal (#3D3A37), Carbon ink (#23211E)",
+    "is_stickman": true
+  },
+  "visual_style_characteristics": {
+    "illustration_technique": "Hand-drawn 2D cartoon illustrations, animated explainer and graphic novel aesthetic",
+    "linework": "Thick, clean, dark ink outlines with consistent line thickness throughout",
+    "characters": "Simple expressive stickman characters with large expressive heads and minimal facial features",
+    "environments": "Detailed illustrated environments with carefully drawn props and architectural backgrounds",
+    "lighting_and_shading": "Soft cinematic lighting with gentle cel shading and subtle tactile paper-like texture",
+    "color_palette_hex": {
+      "grey_concrete": "#8C8D8A",
+      "dusty_brown": "#8D775F",
+      "olive_green": "#5F6B4E",
+      "mustard_yellow": "#D4A017",
+      "warm_ivory_cream": "#F4EBD9",
+      "dark_charcoal_ink": "#23211E",
+      "brick_red_accent": "#A03325",
+      "paper_background_card": "#F7F4EE"
+    },
+    "canvas_rules": {
+      "full_bleed": true,
+      "borderless": true,
+      "no_frames": true,
+      "aspect_ratio": "9:16 (Shorts vertical)"
+    }
+  },
+  "shot_types": [
+    "environmental_establishing",
+    "full_body_character_scene",
+    "facial_close_up",
+    "medium_character_shot",
+    "object_focused_illustration",
+    "architectural_cutaway_diagram",
+    "explanatory_illustration_card_with_text",
+    "cinematic_atmospheric_scene"
+  ],
+  "prompt_injection": {
+    "style_anchor": "Hand-drawn 2D cartoon illustration, graphic-novel and animated explainer aesthetic. Thick, clean, dark ink outlines with consistent line thickness. Muted earthy colour palette: grey concrete (#8C8D8A), dusty brown (#8D775F), olive green (#5F6B4E), and mustard yellow (#D4A017). Soft cinematic lighting, gentle cel shading, subtle paper-like texture. Detailed illustrated environment, borderless edge-to-edge full canvas composition.",
+    "character_anchor": "The Wanderer, original 2D stickman protagonist with oversized warm ivory oval head, two small vertical black pill eyes, neutral slit mouth. Wearing a chunky brick-red ribbed knit beanie, a thick winter scarf with alternating horizontal mustard-yellow and rust-maroon stripes with fringe, dark charcoal short-sleeved t-shirt, and thin solid black stick limbs.",
+    "strict_negative": "NO white borders, NO decorative frames, NO black letterbox bars, NO split-screen panels, NO comic speech bubbles, NO 3D photorealism, NO plain hairless un-beanie figures, NO glossy gradients."
+  },
+  "references": {
+    "primary_character_ref": "references/brand_identity/ref_character_full_body.jpg",
+    "close_up_character_ref": "references/brand_identity/ref_character_close_up.jpg",
+    "three_quarter_character_ref": "references/brand_identity/ref_character_three_quarter.jpg"
+  }
+}

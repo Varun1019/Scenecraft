@@ -1,0 +1,62 @@
+# Environment & local credentials
+.env
+.env.*
+!.env.example
+*.local
+
+# Configuration override
+config.yaml
+!config.example.yaml
+
+# Intermediate and rendered outputs
+output/
+temp/
+clean/
+clean_tuned/
+generated_images/
+input/
+
+# Model files & weights
+models/
+cache/
+.cache/
+*.onnx
+*.bin
+*.pt
+*.safetensors
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python caches & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Extension & NodeJS
+node_modules/
+extension/dist/
+extension/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Audio generated/large files (except small test fixtures)
+*.wav
+!tests/**/*.wav
+!assets/audio/sfx/*.wav

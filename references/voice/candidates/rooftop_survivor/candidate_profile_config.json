@@ -1,0 +1,45 @@
+{
+  "profile_id": "6f7af622",
+  "name": "StoryForge - Rooftop Survivor (Candidate)",
+  "engine": "omnivoice",
+  "kind": "clone",
+  "authorized_consent_basis": "speaker_permission",
+  "attestation_status": "attested",
+  "reference_audio": "references/voice/candidates/rooftop_survivor/reference_demo_sample.wav",
+  "reference_text": "30 days ago, the city fell. You are on the roof of your tower, 34 floors up, sitting on the only way in. 5,000 gallons of water in the tank behind you, two days of food, and your flat, four floors down, is full of them.",
+  "default_speed": 0.88,
+  "acoustic_metrics": {
+    "median_pitch_f0_hz": 114.0,
+    "target_reference_f0_hz": 148.5,
+    "pitch_range_5th_95th_hz": "98.9 - 298.0",
+    "reference_speaking_speed_wpm": 163.9,
+    "pause_ratio_percent": 29.6,
+    "accent": "General American (rhotic, dry acoustic)",
+    "tone_texture": "Low baritone, intimate near-mic proximity, quiet tension, subtle breathiness"
+  },
+  "samples": [
+    {
+      "style": "Normal storytelling",
+      "filename": "sample_1_normal_storytelling.wav",
+      "duration": 8.313708,
+      "speed": 0.9,
+      "text": "Thirty days ago, the city fell. You are on the roof of your tower, thirty-four floors up, sitting on the only way in."
+    },
+    {
+      "style": "Suspenseful narration",
+      "filename": "sample_2_suspenseful.wav",
+      "duration": 11.689167,
+      "speed": 0.86,
+      "text": "Every night, you sit listening for news in the dark. But at two in the morning, the heavy hatch shifts under four concrete blocks. Something is checking."
+    },
+    {
+      "style": "Emotional/serious narration",
+      "filename": "sample_3_emotional_serious.wav",
+      "duration": 9.924375,
+      "speed": 0.84,
+      "text": "Without clean water or fuel, the human body fails in seventy-two hours. Out here, under an empty sky, every drop is a calculated risk."
+    }
+  ],
+  "locked_as_default": false,
+  "status": "candidate_awaiting_approval"
+}

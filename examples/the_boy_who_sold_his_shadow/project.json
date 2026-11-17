@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "story_title": "The Boy Who Sold His Shadow",
+  "genre": "Dark Mystery / Supernatural Suspense",
+  "aspect_ratio": "9:16",
+  "style": "earthy_explainer",
+  "target_duration_seconds": 60,
+  "premise": "A poor boy sells his shadow to a mysterious stranger for $100, only to discover that without it, his existence fades from the world\u2014and something far worse was kept at bay.",
+  "opening_hook": "Never sell something you cannot replace. A starving boy sold his shadow for a hundred dollars.",
+  "hook_options": [
+    {
+      "id": 1,
+      "archetype": "MYSTERY_WARNING",
+      "spoken_hook": "Never sell something you cannot replace. A starving boy sold his shadow for a hundred dollars.",
+      "on_screen_text": "THE BOY WHO SOLD HIS SHADOW",
+      "curiosity_gap": "Why would anyone buy a shadow, and what happens when you lose it?",
+      "score": 19,
+      "is_recommended": true
+    }
+  ],
+  "recommended_hook_id": 1,
+  "on_screen_hook_text": "THE BOY WHO SOLD HIS SHADOW",
+  "characters": [
+    {
+      "name": "The Wanderer",
+      "role": "Protagonist",
+      "visual_anchor": "2D cartoon stickman boy with smooth warm ivory oval head, two vertical black pill eyes, neutral slit mouth, thin black stick limbs and torso, wearing a brick-red ribbed knit beanie, striped mustard-gold and rust-maroon scarf with fringe, and dark charcoal short-sleeved t-shirt.",
+      "motivation": "Regain his lost shadow before his existence vanishes completely."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_index": 1,
+      "title": "The Alley Bargain",
+      "narration": "Never sell something you cannot replace. A starving boy sold his shadow for a hundred dollars.",
+      "visual_description": "Vertical 9:16 portrait. The Wanderer boy standing in a cold cobblestone alleyway facing a tall mysterious stranger in a dark brimmed fedora under an amber streetlamp.",
+      "camera_movement": "slow_push_in",
+      "sfx_cue": "sfx_tension_drone",
+      "emotion": "SUSPENSE",
+      "tension_level": 4
+    },
+    {
+      "scene_index": 2,
+      "title": "The Obsidian Box",
+      "narration": "He laughed, thinking it a joke. Until the stranger opened an obsidian box beneath the sun.",
+      "visual_description": "Medium 9:16 close-up. The mysterious stranger holds open a small black obsidian box with silver latches. Sunlight blazes down, and the boy silhouette begins to peel from the pavement.",
+      "camera_movement": "fast_push_in",
+      "sfx_cue": "sfx_tape_click",
+      "emotion": "DREAD",
+      "tension_level": 6
+    },
+    {
+      "scene_index": 3,
+      "title": "The Missing Silhouette",
+      "narration": "The boy stepped forward. The ground behind him was completely, terrifyingly blank.",
+      "visual_description": "Full-body 9:16 portrait. The Wanderer boy standing in blinding sunlight. The brick wall and trash bins cast long black shadows, but beneath the boy boots, there is zero shadow.",
+      "camera_movement": "pan_left",
+      "sfx_cue": "sfx_sub_rumble",
+      "emotion": "MYSTERY",
+      "tension_level": 6
+    },
+    {
+      "scene_index": 4,
+      "title": "The Careless Feast",
+      "narration": "With cash in hand, he bought warm food, new clothes, and celebrated his easy luck.",
+      "visual_description": "Warm interior 9:16 shot. The Wanderer boy sits at a wooden table in a retro diner eating steaming soup, surrounded by shopping bags and paper money.",
+      "camera_movement": "pan_right",
+      "sfx_cue": "sfx_pipe_tap",
+      "emotion": "SUSPENSE",
+      "tension_level": 3
+    },
+    {
+      "scene_index": 5,
+      "title": "The Forgotten Son",
+      "narration": "Until next morning. His mother stood weeping, looking straight through him like empty air.",
+      "visual_description": "Medium 9:16 shot in a shadowy apartment hallway. A woman stands crying with her hands over her face, staring right through the boy as if he is invisible.",
+      "camera_movement": "pan_down",
+      "sfx_cue": "sfx_tension_drone",
+      "emotion": "DREAD",
+      "tension_level": 7
+    },
+    {
+      "scene_index": 6,
+      "title": "The Dissolving Portrait",
+      "narration": "In the framed photograph on the wall, his face was dissolving into a smeared void.",
+      "visual_description": "Extreme close-up 9:16 framing. A cracked wooden picture frame on wallpaper. In the photograph, the boy face has melted into a blank, smudged white haze.",
+      "camera_movement": "slow_push_in",
+      "sfx_cue": "sfx_tension_riser",
+      "emotion": "PANIC",
+      "tension_level": 8
+    },
+    {
+      "scene_index": 7,
+      "title": "The Terrified World",
+      "narration": "He sprinted outside. His reflection was fading, and his own dog snarled in terror.",
+      "visual_description": "Over-the-shoulder 9:16 view on a wet street. A street dog cowers, ears back, barking at the empty air behind the boy. The storefront window reflects only a faint ghostly outline.",
+      "camera_movement": "pan_left",
+      "sfx_cue": "sfx_footsteps_creepy",
+      "emotion": "PANIC",
+      "tension_level": 8
+    },
+    {
+      "scene_index": 8,
+      "title": "The Desperate Beggar",
+      "narration": "Desperate, he cornered the stranger in the fog, begging for his shadow back.",
+      "visual_description": "Dramatic 9:16 medium two-shot in dense cold blue mist. The Wanderer boy desperately grabs the stranger dark overcoat, holding out the crumpled bank notes.",
+      "camera_movement": "fast_push_in",
+      "sfx_cue": "sfx_door_lock",
+      "emotion": "SUSPENSE",
+      "tension_level": 9
+    },
+    {
+      "scene_index": 9,
+      "title": "The Unseen Threat",
+      "narration": "The old man smiled cold: You sold your shadow, boy. But you never asked what it was protecting you from.",
+      "visual_description": "Low-angle intense 9:16 close-up. The stranger faint smile under the dark brim, while behind him in the swirling mist, a gargantuan monstrous silhouette rises in the dark.",
+      "camera_movement": "slow_push_in",
+      "sfx_cue": "sfx_tension_drone",
+      "emotion": "REVEAL",
+      "tension_level": 10
+    }
+  ]
+}

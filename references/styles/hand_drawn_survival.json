@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "preset_id": "survival_explainer",
+  "name": "Hand-Drawn Survival/Explainer Style",
+  "description": "Hand-drawn 2D cartoon explainer with thick dark ink outlines, muted earthy palette, expressive stickman characters, detailed illustrated environments, and occasional white-background illustration cards.",
+  "archetype": "Survival Explainer & Documentary Stickman",
+  "character_spec": {
+    "name": "The Wanderer",
+    "role": "Protagonist",
+    "visual_identity": "Expressive 2D dark comic stickman protagonist. Smooth warm ivory oval head (#F9E8CE), vertical black pill eyes with subtle expressive brow lines, neutral horizontal slit mouth, thin black stick limbs and torso.",
+    "clothing": "Chunky brick-red ribbed knit beanie (#A03325), thick knitted winter scarf with alternating mustard-gold (#DFA028) and rust-maroon (#8C2B1D) horizontal stripes with fringe, dark charcoal short-sleeved t-shirt, and optional multi-pocket survival vest (#565942).",
+    "distinguishing_features": "Smooth cream oval head, brick-red folded-brim knit beanie, gold-and-maroon striped scarf, solid black stick limbs, bold clean black outlines",
+    "color_palette": "Concrete grey (#7D8287), Dusty bunker brown (#5E5247), Olive drab (#565942), Aged mustard yellow (#D4A738), Brick-red (#A03325), Warm ivory (#F9E8CE), Charcoal black (#18181A)",
+    "is_stickman": true
+  },
+  "color_palette_hex": {
+    "concrete_grey": "#7D8287",
+    "dusty_brown": "#5E5247",
+    "olive_drab": "#565942",
+    "aged_mustard": "#D4A738",
+    "beanie_red": "#A03325",
+    "head_skin": "#F9E8CE",
+    "scarf_gold": "#DFA028",
+    "scarf_maroon": "#8C2B1D",
+    "tshirt": "#454242",
+    "linework": "#18181A",
+    "white_card_bg": "#FFFFFF"
+  },
+  "illustration_rules": {
+    "style_type": "Hand-drawn 2D cartoon animated survival explainer",
+    "linework": "Thick, bold, uniform dark charcoal / black ink outlines, clean hand-drawn line weight",
+    "shading": "Gentle flat cel shading with soft directional cast shadows, no CGI gloss",
+    "texture": "Subtle concrete grain, aged metal patina, canvas weave, clean vector-like fills",
+    "lighting": "Soft cinematic directional lighting, warm tungsten lantern / bulb glow, readable midtones",
+    "environments": "Detailed illustrated architectural environments, underground arched bunker tunnels, rusty overhead pipes, blast doors, supply barrels, survival gear",
+    "white_cards": "Occasional pure white-background hero object illustration cards and technical cutaway diagrams with bold labels"
+  },
+  "references": {
+    "bunker_interior": "references/styles/survival_explainer/ref_01_bunker_interior.jpg",
+    "corridor_inventory": "references/styles/survival_explainer/ref_02_corridor_inventory.jpg",
+    "cutaway_diagram": "references/styles/survival_explainer/ref_03_diagram_shaft.jpg",
+    "card_geiger_counter": "references/styles/survival_explainer/ref_04_card_geiger_counter.jpg",
+    "card_vault_door": "references/styles/survival_explainer/ref_05_card_vault_door.jpg",
+    "protagonist_close_up": "references/styles/survival_explainer/ref_06_protagonist_close_up.jpg"
+  },
+  "prompt_injection": {
+    "environment_header": "Hand-drawn 2D cartoon explainer illustration, viral survival documentary animation style. Thick dark charcoal ink outlines, gentle flat cel-shading, muted earthy color palette (concrete grey #7D8287, dusty bunker brown #5E5247, olive drab #565942, aged mustard yellow #D4A738). Detailed illustrated architectural environment, clean mechanical props. Soft cinematic directional lighting casting gentle shadows, edge-to-edge borderless canvas.",
+    "character_anchor": "The Wanderer, an expressive 2D stickman protagonist with a smooth warm ivory oval head (#F9E8CE), vertical black pill eyes, neutral slit mouth. Wearing his iconic chunky brick-red ribbed knit beanie (#A03325), his thick winter scarf with mustard-gold and rust-maroon stripes, and a dark charcoal t-shirt over thin black stick limbs.",
+    "white_card_header": "Hand-drawn 2D cartoon educational illustration on pure solid white background. Centered hero prop, clean isometric 3/4 perspective, thick dark charcoal ink outlines, muted earthy survival colors, subtle edge scuffs, soft grounding cast shadow below the object. Infographic diagram clarity, zero clutter.",
+    "strict_negative": "Absolutely NO 3D CGI photorealism, NO glossy plastic renders, NO messy gradients, NO watermarks, NO channel logos, NO speech bubbles, NO AI text gibberish, NO deformed anatomy."
+  }
+}

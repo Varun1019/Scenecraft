@@ -1,0 +1,24 @@
+{
+  "active_default": "dark_cinematic",
+  "presets": {
+    "dark_cinematic": {
+      "id": "dark_cinematic",
+      "name": "Original Dark Cinematic Style",
+      "config_path": "references/brand_identity/style_config.json",
+      "description": "Original 2D graphic-novel dark comic illustration with high-contrast shadows and thriller aesthetic."
+    },
+    "survival_explainer": {
+      "id": "survival_explainer",
+      "name": "Hand-Drawn Survival/Explainer Style",
+      "config_path": "references/styles/hand_drawn_survival.json",
+      "description": "Hand-drawn 2D cartoon explainer with thick dark ink outlines, muted earthy palette, detailed bunker environments, and white-background illustration cards."
+    },
+    "earthy_explainer": {
+      "id": "earthy_explainer",
+      "name": "Earthy Explainer (Hand-Drawn Animated Explainer)",
+      "config_path": "references/brand_identity/styles/earthy_explainer_config.json",
+      "bible_path": "references/brand_identity/styles/earthy_explainer_bible.md",
+      "description": "Approved hand-drawn 2D cartoon explainer with thick dark ink outlines, muted earthy palette (concrete grey, dusty brown, olive green, mustard yellow), soft cinematic lighting, and cel shading."
+    }
+  }
+}

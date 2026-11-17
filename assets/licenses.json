@@ -1,0 +1,303 @@
+{
+  "version": "2.0.0",
+  "license_policy": "Strict verification for commercial YouTube monetization. Only CC0-1.0 and Public Domain assets accepted.",
+  "verified_assets": {
+    "apocalypse_ambient_drone.wav": {
+      "category": "bgm",
+      "path": "assets/audio/bgm/apocalypse_ambient_drone.mp3",
+      "license": "CC0-1.0 / Public Domain Equivalent",
+      "source": "Procedural dark atmospheric ambient drone synthesis",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "apocalypse_ambient_drone.mp3": {
+      "category": "bgm",
+      "path": "assets/audio/bgm/apocalypse_ambient_drone.mp3",
+      "license": "CC0-1.0 / Public Domain Equivalent",
+      "source": "Procedural dark atmospheric ambient drone synthesis",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_knock_door.wav": {
+      "category": "sfx_impacts",
+      "path": "assets/audio/sfx/sfx_knock_door.wav",
+      "license": "CC0-1.0 (Creative Commons Zero, Public Domain Dedication)",
+      "source": "Wikimedia Commons (File:Knock on door.wav by Asud12)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_knock_heavy.wav": {
+      "category": "sfx_impacts",
+      "path": "assets/audio/sfx/sfx_knock_heavy.wav",
+      "license": "Public Domain (PDSounds / Stephan)",
+      "source": "Wikimedia Commons (File:Knocking on wood or door.ogg)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_door_slam.wav": {
+      "category": "sfx_impacts",
+      "path": "assets/audio/sfx/sfx_door_slam.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (cinematic-slam-massive.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_door_lock.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_door_lock.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (mechanical-lock-heavy.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_door_creak.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_door_creak.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Kenney RPG Audio Assets (creak1.ogg by Kenney NL)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_footsteps_creepy.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_footsteps_creepy.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Kenney RPG Audio Assets (footstep00-02 by Kenney NL)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_water_faucet.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_water_faucet.wav",
+      "license": "Public Domain (PDSounds / Stephan)",
+      "source": "Wikimedia Commons (File:Faucet water into sink.ogg)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_emergency_alert.wav": {
+      "category": "sfx_alerts",
+      "path": "assets/audio/sfx/sfx_emergency_alert.wav",
+      "license": "CC0-1.0 / Public Domain",
+      "source": "Layered Wyzowl SFX Kit + Public Domain 853Hz/960Hz EAS standard tones",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_phone_vibrate.wav": {
+      "category": "sfx_alerts",
+      "path": "assets/audio/sfx/sfx_phone_vibrate.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (phone-vibrate-table.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_whoosh_cinematic.wav": {
+      "category": "sfx_transitions",
+      "path": "assets/audio/sfx/sfx_whoosh_cinematic.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (whoosh-slow-hard.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_whoosh_fast.wav": {
+      "category": "sfx_transitions",
+      "path": "assets/audio/sfx/sfx_whoosh_fast.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (whoosh-fast-hard.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_tension_riser.wav": {
+      "category": "sfx_transitions",
+      "path": "assets/audio/sfx/sfx_tension_riser.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (riser-4s-strong.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_sub_rumble.wav": {
+      "category": "sfx_transitions",
+      "path": "assets/audio/sfx/sfx_sub_rumble.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (bass-rumble-long.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_knock.wav": {
+      "category": "sfx_impacts",
+      "path": "assets/audio/sfx/sfx_knock.wav",
+      "license": "CC0-1.0 (Creative Commons Zero, Public Domain Dedication)",
+      "source": "Wikimedia Commons (File:Knock on door.wav by Asud12)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_water.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_water.wav",
+      "license": "Public Domain (PDSounds / Stephan)",
+      "source": "Wikimedia Commons (File:Faucet water into sink.ogg)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_alarm.wav": {
+      "category": "sfx_alerts",
+      "path": "assets/audio/sfx/sfx_alarm.wav",
+      "license": "CC0-1.0 / Public Domain",
+      "source": "Layered Wyzowl SFX Kit + Public Domain 853Hz/960Hz EAS standard tones",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_swoosh.wav": {
+      "category": "sfx_transitions",
+      "path": "assets/audio/sfx/sfx_swoosh.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (whoosh-slow-hard.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_phone_ring.wav": {
+      "category": "sfx_alerts",
+      "path": "assets/audio/sfx/sfx_phone_ring.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (phone-ring-classic.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_clock_tick.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_clock_tick.wav",
+      "license": "CC0-1.0 (Creative Commons Zero 1.0 Universal)",
+      "source": "Wyzowl SFX Kit (time-clock.wav)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_radio_tuning.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_radio_tuning.wav",
+      "license": "CC0-1.0 / StableAudio CC0",
+      "source": "StableAudio CC0 Sound Library (b2_radio_tuning_a.mp3)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_radio_static.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_radio_static.wav",
+      "license": "CC0-1.0 / StableAudio CC0",
+      "source": "StableAudio CC0 Sound Library (b4_tv_static_burst_b.mp3)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_rain_heavy.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_rain_heavy.wav",
+      "license": "CC0-1.0 / StableAudio CC0",
+      "source": "StableAudio CC0 Sound Library (b2_rain_heavy.mp3)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_tension_drone.wav": {
+      "category": "sfx_transitions",
+      "path": "assets/audio/sfx/sfx_tension_drone.wav",
+      "license": "CC0-1.0 / StableAudio CC0",
+      "source": "StableAudio CC0 Sound Library (b2_tension_drone.mp3)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_tape_click.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_tape_click.wav",
+      "license": "CC0-1.0 / StableAudio CC0",
+      "source": "StableAudio CC0 Sound Library (b4_cassette_click_a.mp3)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    },
+    "sfx_pipe_tap.wav": {
+      "category": "sfx_foley",
+      "path": "assets/audio/sfx/sfx_pipe_tap.wav",
+      "license": "CC0-1.0 (Kenney NL CC0)",
+      "source": "Kenney Audio Assets (impactWood_light_000.ogg)",
+      "commercial_use_permitted": true,
+      "youtube_monetization_safe": true,
+      "attribution_required": false,
+      "attribution_text": "",
+      "status": "VERIFIED"
+    }
+  }
+}

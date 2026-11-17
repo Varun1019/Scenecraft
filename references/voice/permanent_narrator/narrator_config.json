@@ -1,0 +1,10 @@
+{
+  "narrator_name": "StoryForge Permanent Cinematic Narrator (Rooftop Survivor — Natural)",
+  "voice_id": "6f7af622",
+  "engine": "omnivoice",
+  "default_speed": 0.90,
+  "seed": 42101,
+  "tone": "Low baritone, intimate near-mic proximity, authentic conversational survivalist tone with warm chest resonance",
+  "approved_date": "2026-11-09",
+  "locked": true
+}

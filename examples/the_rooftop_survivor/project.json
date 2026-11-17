@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "story_title": "The Rooftop Survivor",
+  "genre": "Survival Suspense",
+  "aspect_ratio": "9:16",
+  "style": "earthy_explainer",
+  "premise": "A lone survivor stranded atop a thirty-story tower monitors a toxic dust front, only to discover the hatch below him has already unlatched.",
+  "opening_hook": "When the city below went dead silent at dusk, this rooftop became your only refuge.",
+  "hook_options": [
+    {
+      "id": 1,
+      "archetype": "IMMEDIATE_THREAT",
+      "spoken_hook": "When the city below went dead silent at dusk, this rooftop became your only refuge.",
+      "on_screen_text": "THE ROOFTOP SURVIVOR",
+      "curiosity_gap": "Why did the entire city fall silent, and why is the roof the only refuge?",
+      "score": 19,
+      "is_recommended": true
+    },
+    {
+      "id": 2,
+      "archetype": "COUNTDOWN",
+      "spoken_hook": "You have exactly six minutes before the ground-level quarantine breaches the stairwell.",
+      "on_screen_text": "6 MINUTES TO NIGHTFALL",
+      "curiosity_gap": "What is breaching the stairwell, and can the roof hold?",
+      "score": 18,
+      "is_recommended": false
+    },
+    {
+      "id": 3,
+      "archetype": "FORBIDDEN_KNOWLEDGE",
+      "spoken_hook": "Never lean over the ledge after the amber sirens stop singing.",
+      "on_screen_text": "DO NOT LOOK DOWN",
+      "curiosity_gap": "What happens when the sirens stop, and what is below?",
+      "score": 17,
+      "is_recommended": false
+    }
+  ],
+  "recommended_hook_id": 1,
+  "on_screen_hook_text": "THE ROOFTOP SURVIVOR",
+  "characters": [
+    {
+      "name": "The Wanderer",
+      "role": "Protagonist",
+      "visual_anchor": "The Wanderer: 2D dark comic stickman with oversized smooth warm ivory oval head, two vertical black pill eyes, neutral slit mouth, thin black stick limbs and torso, wearing a brick-red ribbed knit beanie, striped mustard-gold and rust-maroon scarf with fringe, and dark charcoal short-sleeved t-shirt.",
+      "motivation": "Survive the toxic perimeter containment and safeguard the rooftop reservoir."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_index": 1,
+      "title": "The Silent Skyline",
+      "narration": "When the city below went dead silent at dusk, this rooftop became your only refuge.",
+      "visual_description": "Full vertical 9:16 composition. The Wanderer stands near gravel rooftop ledge in concrete grey and dusty olive setting. Thick dark ink outlines, muted earthy tones, gentle cel shading. Soft dusky amber twilight over distant blackout skyline.",
+      "camera_movement": "zoom_in",
+      "sfx_cue": "sfx_tension_drone",
+      "visual_focus": "The Wanderer standing resolute at the rooftop boundary overlooking the quiet abyss.",
+      "emotion": "SUSPENSE",
+      "tension_level": 4
+    },
+    {
+      "scene_index": 2,
+      "title": "The Static Warning",
+      "narration": "Your handheld radio spits violent static before repeating one frantic rule: extinguish every lantern.",
+      "visual_description": "Medium shot 9:16 framing. The Wanderer holds an illustrated olive-drab emergency field radio glowing with faint red LEDs. Hand-drawn 2D cartoon with ink linework, muted concrete grey and mustard-gold palette.",
+      "camera_movement": "pan_left",
+      "sfx_cue": "sfx_radio_static",
+      "visual_focus": "The glowing dials of the emergency radio in stick hands.",
+      "emotion": "DREAD",
+      "tension_level": 6
+    },
+    {
+      "scene_index": 3,
+      "title": "The Acid Dust Front",
+      "narration": "A wall of dense chemical dust crawls over the high-rises, swallowing thirty city blocks in minutes.",
+      "visual_description": "Wide vertical 9:16 angle. The Wanderer stands back against a concrete elevator mechanical housing. A towering dusty ochre and mustard smog cloud rolls toward the rooftop under fading sky.",
+      "camera_movement": "zoom_in",
+      "sfx_cue": "sfx_rain_heavy",
+      "visual_focus": "The approaching colossal dust wall towering over the rooftop.",
+      "emotion": "PANIC",
+      "tension_level": 8
+    },
+    {
+      "scene_index": 4,
+      "title": "The Hatch Vibration",
+      "narration": "Then iron rivets groan beneath your boots. Something heavy is climbing the maintenance ladder.",
+      "visual_description": "Downward angle vertical 9:16. The Wanderer steps cautiously back from a heavy bolted cast-iron roof hatch on the weathered concrete deck. Subtle motion vibration lines around the rusted iron locking wheel.",
+      "camera_movement": "zoom_in",
+      "sfx_cue": "sfx_pipe_tap",
+      "visual_focus": "The rusted iron hatch vibrating as footsteps ascend inside.",
+      "emotion": "SHOCK",
+      "tension_level": 9
+    },
+    {
+      "scene_index": 5,
+      "title": "The Broken Padlock",
+      "narration": "You kneel by the latch with cold breath. The padlock wasn't broken from inside. It was unlocked from the roof.",
+      "visual_description": "Close up vertical 9:16. The Wanderer's ivory oval head with wide black pill eyes staring in stark dread at an open brass padlock lying on the gravel beside the open latch. Dramatic rim light.",
+      "camera_movement": "zoom_in",
+      "sfx_cue": "sfx_tape_click",
+      "visual_focus": "The open padlock and the dark gap of the cracked open hatch.",
+      "emotion": "MYSTERY",
+      "tension_level": 10
+    }
+  ],
+  "ending": "The padlock wasn't broken from inside. It was unlocked from the roof.",
+  "engagement_question": "Would you slam the hatch shut or run for the emergency fire escape?"
+}

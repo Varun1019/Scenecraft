@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "story_title": "The Elevator Opened on a Floor That Didn't Exist",
+  "genre": "Psychological Horror / Supernatural Suspense",
+  "aspect_ratio": "9:16",
+  "style": "dark_cinematic",
+  "target_duration_seconds": 105,
+  "premise": "Every night at 2:13 AM, an elevator stops at the nonexistent 13th floor of an apartment tower. Inside, a tenant discovers a duplicate hallway, a double wearing his red beanie, and a terrifying phone notification.",
+  "opening_hook": "I live on the 12th floor. And every night, at exactly 2:13 AM, my elevator stops at the 13th.",
+  "characters": [
+    {
+      "name": "The Wanderer",
+      "role": "Protagonist",
+      "visual_anchor": "2D graphic-novel stickman protagonist with smooth warm ivory oval head, two vertical black pill eyes, neutral slit mouth, thin black stick limbs and torso, wearing a brick-red ribbed knit beanie, striped mustard-gold and rust-maroon scarf with fringe, and dark charcoal short-sleeved t-shirt.",
+      "motivation": "Escape the duplicate floor and survive the entity in his apartment."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_index": 1,
+      "title": "The 2:13 AM Anomaly",
+      "narration": "I live on the 12th floor. And every night, at exactly 2:13 AM, my elevator stops at the 13th. The problem? My building doesn't have a 13th floor. At first, I thought it was a glitch. Until one night, I decided to stay inside and see what happened.",
+      "visual_description": "Vertical 9:16 portrait. The Wanderer standing inside a vintage brass elevator cab watching glowing red floor indicator lights as the elevator ascends past 12.",
+      "camera_movement": "slow_push_in",
+      "sfx_cue": "sfx_tension_drone",
+      "emotion": "SUSPENSE",
+      "tension_level": 4.0
+    },
+    {
+      "scene_index": 2,
+      "title": "The Duplicate Hallway",
+      "narration": "The elevator stopped. The doors opened. And outside was a hallway that looked exactly like mine. Same wallpaper. Same lights. Same apartment doors. Except every door had my apartment number. I pressed the close button. Nothing happened.",
+      "visual_description": "Vertical 9:16 portrait. The elevator doors sliding open to reveal a narrow repeating hallway with flickering sconces and identical door numbers repeating into darkness.",
+      "camera_movement": "pan_left",
+      "sfx_cue": "sfx_door_creak",
+      "emotion": "DREAD",
+      "tension_level": 6.5
+    },
+    {
+      "scene_index": 3,
+      "title": "The Red Beanie at the Staircase",
+      "narration": "Then I noticed something at the end of the hallway. A person standing beside the staircase. Wearing a red beanie. My red beanie. I stepped backward. The person started walking toward the elevator. I pressed every button. Nothing. Then the elevator speaker crackled. A voice whispered: 'Don't let him enter.'",
+      "visual_description": "Vertical 9:16 portrait. Silhouetted stickman figure at the far end of the hallway wearing an identical brick-red beanie stepping forward with unnatural robotic gait.",
+      "camera_movement": "fast_push_in",
+      "sfx_cue": "sfx_footsteps_creepy",
+      "emotion": "PANIC",
+      "tension_level": 8.5
+    },
+    {
+      "scene_index": 4,
+      "title": "Inside Behind Me",
+      "narration": "The doors finally began closing. But just before they shut, I saw something that made my entire body freeze. The person wasn't walking toward me anymore. He was standing inside the elevator. Behind me. I turned around. Nobody was there.",
+      "visual_description": "Vertical 9:16 portrait. Extreme close-up on The Wanderer's ivory face with vertical black pill eyes wide in terror, mirrored reflection in elevator chrome showing a shadowy duplicate figure directly behind him.",
+      "camera_movement": "static_hold",
+      "sfx_cue": "sfx_sub_rumble",
+      "emotion": "SHOCK",
+      "tension_level": 9.8
+    },
+    {
+      "scene_index": 5,
+      "title": "The Wrong Floor",
+      "narration": "The elevator reached the 12th floor. I ran to my apartment and locked the door. I thought it was over. Until I checked my phone. There was a new security notification: Motion detected inside your apartment. I opened the camera. And there I was. Sitting on my bed. Wearing my red beanie. But I was watching the recording from outside. And the person sitting on my bed slowly turned toward the camera. He whispered: 'You're on the wrong floor.' Would you enter that elevator again?",
+      "visual_description": "Vertical 9:16 portrait. The Wanderer standing outside his door holding glowing smartphone showing black-and-white night-vision bedroom camera feed where his duplicate turns to stare directly at the lens.",
+      "camera_movement": "slow_push_in",
+      "sfx_cue": "sfx_whoosh_cinematic",
+      "emotion": "REVEAL",
+      "tension_level": 10.0
+    }
+  ]
+}
