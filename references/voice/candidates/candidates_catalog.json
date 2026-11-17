@@ -3,7 +3,7 @@
     {
       "number": 1,
       "id": "b77c1cca",
-      "name": "StoryForge - The Documentarian",
+      "name": "Scenecraft - The Documentarian",
       "tone": "Low American Baritone — calm, mature, authoritative, investigative",
       "speed": 0.88,
       "seed": 42101,
@@ -12,7 +12,7 @@
     {
       "number": 2,
       "id": "e05716f0",
-      "name": "StoryForge - Midnight Noir",
+      "name": "Scenecraft - Midnight Noir",
       "tone": "Warm Intimate American — smooth, eerie, conversational, quiet tension",
       "speed": 0.88,
       "seed": 63202,
@@ -21,7 +21,7 @@
     {
       "number": 3,
       "id": "2f7eb12a",
-      "name": "StoryForge - Deep Chronicler",
+      "name": "Scenecraft - Deep Chronicler",
       "tone": "Solemn British Baritone — deep, dramatic restraint, classic mystery",
       "speed": 0.88,
       "seed": 84303,

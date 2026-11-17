@@ -3,11 +3,11 @@
 import unittest
 import tempfile
 from pathlib import Path
-from storyforge.resource_manager import ResourceManager, ImageAssetWorker, AudioWorker, VideoWorker
-from storyforge.storage_manager import StorageManager
-from storyforge.dependency_graph import DependencyGraph, compute_sha256
-from storyforge.metadata_generator import MetadataGenerator
-from storyforge.doctor import SystemDoctor
+from scenecraft.resource_manager import ResourceManager, ImageAssetWorker, AudioWorker, VideoWorker
+from scenecraft.storage_manager import StorageManager
+from scenecraft.dependency_graph import DependencyGraph, compute_sha256
+from scenecraft.metadata_generator import MetadataGenerator
+from scenecraft.doctor import SystemDoctor
 
 
 class TestUpgrade3Systems(unittest.TestCase):

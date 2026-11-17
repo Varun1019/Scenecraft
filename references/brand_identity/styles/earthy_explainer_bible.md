@@ -1,4 +1,4 @@
-# StoryForge Visual Style Bible: Earthy Explainer Preset
+# Scenecraft Visual Style Bible: Earthy Explainer Preset
 
 ## 1. Aesthetic Identity
 - **Genre**: Hand-drawn 2D cartoon illustration, graphic-novel explainer aesthetic.

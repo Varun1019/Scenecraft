@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from storyforge.scene_director import SceneDirector, CINEMATIC_SHOTS, SUPPORTED_MOVEMENTS
-from storyforge.video_engine import VideoEngine
-from storyforge.thumbnail_generator import ThumbnailGenerator
+from scenecraft.scene_director import SceneDirector, CINEMATIC_SHOTS, SUPPORTED_MOVEMENTS
+from scenecraft.video_engine import VideoEngine
+from scenecraft.thumbnail_generator import ThumbnailGenerator
 
 
 class TestCinematicDirectorAndVideo(unittest.TestCase):

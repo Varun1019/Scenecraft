@@ -2,7 +2,7 @@
 
 import unittest
 from pathlib import Path
-from storyforge.visual_intelligence import (
+from scenecraft.visual_intelligence import (
     get_character_reference_for_shot,
     CinematicPromptEngine,
     CharacterSpec,
@@ -12,8 +12,8 @@ from storyforge.visual_intelligence import (
     OFFICIAL_THREE_QUARTER_REF,
     OFFICIAL_FULL_BODY_REF,
 )
-from storyforge.flow_client import compute_image_content_hash
-from storyforge.narration import (
+from scenecraft.flow_client import compute_image_content_hash
+from scenecraft.narration import (
     _chunk_to_word_level_ass_dialogues,
     _format_ass_time,
 )

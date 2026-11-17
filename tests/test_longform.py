@@ -1,4 +1,4 @@
-"""Tests for StoryForge long-form AI video production engine."""
+"""Tests for Scenecraft long-form AI video production engine."""
 
 import json
 import os
@@ -8,12 +8,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from storyforge.story_engine_longform import LongformStoryEngine, LongformStoryPlan, LongformSceneBeat
-from storyforge.flow_client import FlowClient, FlowConnectionError, SUPPORTED_FLOW_VIDEO_MODELS
-from storyforge.video_engine import VideoEngine, EXPORT_PROFILE_LANDSCAPE, EXPORT_PROFILE_VERTICAL
-from storyforge.shorts_extractor import ShortsExtractor
-from storyforge.thumbnail_generator import ThumbnailGenerator
-from storyforge.pipeline_longform import LongformPipeline
+from scenecraft.story_engine_longform import LongformStoryEngine, LongformStoryPlan, LongformSceneBeat
+from scenecraft.flow_client import FlowClient, FlowConnectionError, SUPPORTED_FLOW_VIDEO_MODELS
+from scenecraft.video_engine import VideoEngine, EXPORT_PROFILE_LANDSCAPE, EXPORT_PROFILE_VERTICAL
+from scenecraft.shorts_extractor import ShortsExtractor
+from scenecraft.thumbnail_generator import ThumbnailGenerator
+from scenecraft.pipeline_longform import LongformPipeline
 
 
 class TestLongformStoryEngine(unittest.TestCase):

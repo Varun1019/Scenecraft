@@ -1,4 +1,4 @@
-# StoryForge
+# Scenecraft
 
 Local CLI automation tool that generates vertical (9:16) stickman story shorts from a story title.
 
@@ -14,16 +14,16 @@ Local CLI automation tool that generates vertical (9:16) stickman story shorts f
 
 ### Check Status & Quota
 ```bash
-storyforge status
+scenecraft status
 ```
 
 ### Generate a Video
 ```bash
-storyforge run "The 30th Floor"
+scenecraft run "The 30th Floor"
 ```
 Or directly:
 ```bash
-storyforge "The 30th Floor"
+scenecraft "The 30th Floor"
 ```
 
 Finished video is exported to `output/<Title>.mp4`.

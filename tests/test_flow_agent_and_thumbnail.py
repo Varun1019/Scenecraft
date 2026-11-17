@@ -10,16 +10,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from storyforge.flow_client import FlowClient
-from storyforge.flow_agent import FlowAgentDirector
-from storyforge.thumbnail_generator import ThumbnailGenerator
-from storyforge.metadata_generator import MetadataGenerator
+from scenecraft.flow_client import FlowClient
+from scenecraft.flow_agent import FlowAgentDirector
+from scenecraft.thumbnail_generator import ThumbnailGenerator
+from scenecraft.metadata_generator import MetadataGenerator
 
 
 class TestFlowAgentAndThumbnail(unittest.TestCase):
 
     def setUp(self):
-        self.test_dir = Path(tempfile.mkdtemp(prefix="storyforge_test_"))
+        self.test_dir = Path(tempfile.mkdtemp(prefix="scenecraft_test_"))
         self.workspace_dir = Path(__file__).resolve().parent.parent
 
     def tearDown(self):
@@ -413,7 +413,7 @@ class TestFlowAgentAndThumbnail(unittest.TestCase):
     # -------------------------------------------------------------------------
     def test_auto_thumbnail_settings_and_generation(self):
         """Verify automatic thumbnail generation respects settings and creates independent files."""
-        from storyforge.settings import is_auto_thumbnail_enabled, set_auto_thumbnail_enabled
+        from scenecraft.settings import is_auto_thumbnail_enabled, set_auto_thumbnail_enabled
 
         # Test settings toggle
         set_auto_thumbnail_enabled(True, workspace_dir=self.test_dir)
@@ -510,8 +510,8 @@ class TestFlowAgentAndThumbnail(unittest.TestCase):
 
         guide_text = saved["guide_txt"].read_text(encoding="utf-8")
         self.assertIn("PASTE INTO GOOGLE FLOW AGENT", guide_text)
-        self.assertIn("StoryForge prepares the prompt; submission is performed by you in Flow", guide_text)
-        self.assertNotIn("StoryForge submitted the prompt to Flow Agent", guide_text)
+        self.assertIn("Scenecraft prepares the prompt; submission is performed by you in Flow", guide_text)
+        self.assertNotIn("Scenecraft submitted the prompt to Flow Agent", guide_text)
 
 
 if __name__ == "__main__":

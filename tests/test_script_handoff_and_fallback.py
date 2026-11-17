@@ -5,20 +5,20 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from storyforge.script_handoff import (
+from scenecraft.script_handoff import (
     parse_markdown_script,
     load_script,
     validate_script,
     save_script,
     ScriptValidationResult,
 )
-from storyforge.story_gen import (
+from scenecraft.story_gen import (
     generate_story,
     generate_auto_story,
     call_gemini_api,
     mask_api_key,
 )
-from storyforge.visual_intelligence import get_style_preset_config
+from scenecraft.visual_intelligence import get_style_preset_config
 
 
 class TestScriptHandoffAndVersioning(unittest.TestCase):
@@ -131,7 +131,7 @@ class TestGeminiFallbackArchitecture(unittest.TestCase):
 
     def test_default_story_gen_uses_local_engine_without_gemini(self):
         # With default fallback_mode="local", Gemini API must NOT be called even if API key exists
-        with patch("storyforge.story_gen.call_gemini_api") as mock_gemini:
+        with patch("scenecraft.story_gen.call_gemini_api") as mock_gemini:
             story = generate_story("The Underground Depot", fallback_mode="local")
             mock_gemini.assert_not_called()
             self.assertEqual(story["story_title"], "The Underground Depot")
@@ -144,7 +144,7 @@ class TestGeminiFallbackArchitecture(unittest.TestCase):
 
     def test_gemini_quota_exhaustion_stops_without_retry(self):
         # Mock call_gemini_api returning HTTP 429 quota exhausted
-        with patch("storyforge.story_gen.call_gemini_api", return_value=(None, "Gemini API Quota Exceeded (HTTP 429)")):
+        with patch("scenecraft.story_gen.call_gemini_api", return_value=(None, "Gemini API Quota Exceeded (HTTP 429)")):
             with self.assertRaises(RuntimeError) as ctx:
                 generate_story(
                     "The Broken Transmitter",
@@ -155,7 +155,7 @@ class TestGeminiFallbackArchitecture(unittest.TestCase):
             self.assertIn("Quota Exceeded", str(ctx.exception))
 
     def test_gemini_failure_with_allow_local_fallback(self):
-        with patch("storyforge.story_gen.call_gemini_api", return_value=(None, "Connection timed out")):
+        with patch("scenecraft.story_gen.call_gemini_api", return_value=(None, "Connection timed out")):
             story = generate_story(
                 "The Backup Generator",
                 api_key="mock_key",

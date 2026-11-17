@@ -1,7 +1,7 @@
 """Unit tests for Social Media Video Caption Generator."""
 
 import unittest
-from storyforge.caption_generator import CaptionGenerator, SocialCaption, copy_to_clipboard
+from scenecraft.caption_generator import CaptionGenerator, SocialCaption, copy_to_clipboard
 
 
 class TestCaptionGenerator(unittest.TestCase):

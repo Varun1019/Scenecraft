@@ -1,11 +1,11 @@
-"""Unit tests for StoryForge Visual Intelligence Engine."""
+"""Unit tests for Scenecraft Visual Intelligence Engine."""
 
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from storyforge.visual_intelligence import (
+from scenecraft.visual_intelligence import (
     CharacterSpec,
     CameraCompositionEngine,
     LightingAtmosphereEngine,
@@ -15,7 +15,7 @@ from storyforge.visual_intelligence import (
     ImageValidationResult,
     DEFAULT_STICKMAN_IDENTITY,
 )
-from storyforge.prompt_builder import ScenePrompt, build_prompts_from_scenes
+from scenecraft.prompt_builder import ScenePrompt, build_prompts_from_scenes
 
 
 class TestVisualIntelligence(unittest.TestCase):

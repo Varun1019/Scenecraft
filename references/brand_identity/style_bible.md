@@ -1,7 +1,7 @@
-# StoryForge Official Brand Identity & Style Bible
+# Scenecraft Official Brand Identity & Style Bible
 
 ## 1. Character Overview: "The Wanderer" / "Red Beanie Stickman"
-This document establishes the permanent, non-negotiable visual identity for StoryForge's primary protagonist across all YouTube long-form videos, Shorts, thumbnails, and channel branding. 
+This document establishes the permanent, non-negotiable visual identity for Scenecraft's primary protagonist across all YouTube long-form videos, Shorts, thumbnails, and channel branding. 
 
 The character is an iconic 2D dark comic stickman defined by an oversized ivory oval head, a brick-red ribbed knit beanie, a signature gold-and-maroon striped scarf, a dark charcoal t-shirt, and clean black stick limbs.
 

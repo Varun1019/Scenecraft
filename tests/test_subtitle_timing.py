@@ -2,7 +2,7 @@
 
 import unittest
 from pathlib import Path
-from storyforge.narration import (
+from scenecraft.narration import (
     _format_ass_time,
     _parse_ass_time,
     _sanitize_word_timestamps,

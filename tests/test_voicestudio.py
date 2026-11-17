@@ -1,15 +1,15 @@
-"""Unit tests for VoiceStudio integration in StoryForge."""
+"""Unit tests for VoiceStudio integration in Scenecraft."""
 
 import unittest
 from pathlib import Path
-from storyforge.voicestudio_client import VoiceStudioClient
-from storyforge.narration import synthesize_scene_narration, get_audio_duration
+from scenecraft.voicestudio_client import VoiceStudioClient
+from scenecraft.narration import synthesize_scene_narration, get_audio_duration
 
 
 class TestVoiceStudioIntegration(unittest.TestCase):
     def setUp(self):
         self.client = VoiceStudioClient()
-        self.test_dir = Path("/tmp/storyforge_voicestudio_tests")
+        self.test_dir = Path("/tmp/scenecraft_voicestudio_tests")
         self.test_dir.mkdir(parents=True, exist_ok=True)
 
     def test_client_init(self):
@@ -77,7 +77,7 @@ class TestVoiceStudioIntegration(unittest.TestCase):
         self.assertIn("elevator", vtt_content)
 
     def test_permanent_narrator_locked_config(self):
-        from storyforge.voicestudio_client import get_permanent_narrator_config
+        from scenecraft.voicestudio_client import get_permanent_narrator_config
         cfg = get_permanent_narrator_config()
         self.assertEqual(cfg["voice_id"], "6f7af622")
         self.assertEqual(cfg["engine"], "omnivoice")
@@ -86,7 +86,7 @@ class TestVoiceStudioIntegration(unittest.TestCase):
         self.assertTrue(cfg.get("locked", False))
 
     def test_delivery_params_modulation(self):
-        from storyforge.voicestudio_client import get_scene_delivery_params
+        from scenecraft.voicestudio_client import get_scene_delivery_params
         # Escalation / Panic -> slightly faster (0.97x with base 0.90x)
         p_panic = get_scene_delivery_params(emotion="PANIC", tension_level=8)
         self.assertEqual(p_panic["speed"], 0.97)

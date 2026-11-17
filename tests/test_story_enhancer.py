@@ -1,9 +1,9 @@
-"""Unit tests for the upgraded StoryForge Storytelling Intelligence Engine."""
+"""Unit tests for the upgraded Scenecraft Storytelling Intelligence Engine."""
 
 import unittest
 from pathlib import Path
 
-from storyforge.story_enhancer import (
+from scenecraft.story_enhancer import (
     ViralHookEngine,
     StoryPacingEngine,
     CliffhangerEngine,
@@ -11,7 +11,7 @@ from storyforge.story_enhancer import (
     EmotionalIntelligence,
     StoryQualityChecker,
 )
-from storyforge.story_engine import StoryEngine, StoryPlan, SceneBeat
+from scenecraft.story_engine import StoryEngine, StoryPlan, SceneBeat
 
 
 class TestStoryEnhancer(unittest.TestCase):
@@ -188,7 +188,7 @@ class TestStoryEnhancer(unittest.TestCase):
 
     # 9. SEPARATE STORY CRITIC / REVIEWER PASS
     def test_story_critic_nine_dimension_evaluation_and_improvement(self):
-        from storyforge.story_enhancer import StoryCritic
+        from scenecraft.story_enhancer import StoryCritic
         critic = StoryCritic()
         raw_scenes = [
             {"scene_index": 1, "narration": "Once upon a time you were in a normal room and it was quiet."},
