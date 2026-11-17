@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "💬 Q&A & Community Discussions"
+    url: "https://github.com/Varun1019/Scenecraft/discussions"
+    about: "Ask questions, share creations, and discuss video production workflows."
+  - name: "🔒 Security Vulnerability Reporting"
+    url: "https://github.com/Varun1019/Scenecraft/security/policy"
+    about: "Privately disclose security issues or vulnerabilities in Scenecraft or extension bridge."

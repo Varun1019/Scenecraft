@@ -1,0 +1,25 @@
+name: "Gentle Stale Triage"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          only-issue-labels: "needs-info"
+          days-before-issue-stale: 14
+          days-before-issue-close: 7
+          stale-issue-message: "This issue has been marked as `needs-info` and has had no activity for 14 days. Please provide the requested diagnostic report or information so we can investigate! It will close in 7 days if inactive."
+          close-issue-message: "Closing this issue due to inactivity. If you still encounter this problem, please comment with updated details or open a new issue."
+          stale-issue-label: "stale"
+          days-before-pr-stale: -1
+          days-before-pr-close: -1

@@ -1,0 +1,32 @@
+name: "Feature Request"
+description: "Suggest an idea, enhancement, or new capability for Scenecraft."
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make Scenecraft better? Share it here or join discussions in our [Community Discussions](https://github.com/Varun1019/Scenecraft/discussions).
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem or Use Case"
+      description: "Is your feature request related to a problem or workflow hurdle?"
+      placeholder: "e.g., Currently when generating multi-scene videos, there is no way to..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Describe what you would like Scenecraft to do."
+      placeholder: "e.g., Add a flag `--export-srt` or support..."
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "Any alternative solutions or workarounds you have considered."
+    validations:
+      required: false

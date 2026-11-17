@@ -1,0 +1,24 @@
+name: "Question / Usage Support"
+description: "Ask a question about configuration, workflow setup, or pipeline usage."
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For general questions, tips, and workflow ideas, feel free to use [GitHub Discussions](https://github.com/Varun1019/Scenecraft/discussions) as well!
+  - type: textarea
+    id: question
+    attributes:
+      label: "Question"
+      description: "What would you like to know?"
+      placeholder: "e.g., How do I customize the default narration voice or use offline TTS?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "Your Environment / Context"
+      description: "Any relevant details about your OS, Python version, or setup."
+    validations:
+      required: false

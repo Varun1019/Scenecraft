@@ -1,0 +1,89 @@
+name: "Bug Report"
+description: "File an issue about broken behavior, render errors, or unexpected crashes."
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue!
+        Before reporting, check the [Troubleshooting Guide](https://github.com/Varun1019/Scenecraft/blob/main/docs/TROUBLESHOOTING.md) for quick fixes to common problems.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "What happened?"
+      description: "Describe the bug clearly."
+      placeholder: "e.g., Rendering failed with error during subtitle burn-in..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "What did you expect to happen?"
+      description: "Describe what should have occurred instead."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Provide the exact commands and flags you ran."
+      placeholder: |
+        1. Run `scenecraft run --title "Test"`
+        2. Inspect output
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System"
+      description: "What OS are you running Scenecraft on?"
+      options:
+        - "Linux (Arch / CachyOS / Manjaro)"
+        - "Linux (Ubuntu / Debian / Mint)"
+        - "Linux (Fedora / RHEL)"
+        - "Windows 11"
+        - "Windows 10"
+        - "macOS"
+        - "Other"
+    validations:
+      required: true
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: "Installation Method"
+      description: "How was Scenecraft installed?"
+      options:
+        - "git clone + pip install -e . (inside virtualenv)"
+        - "git clone + pip install -e . (system python)"
+        - "pip install scenecraft"
+        - "Claude Code / Antigravity skill"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostic-report
+    attributes:
+      label: "Diagnostic Report (`scenecraft report`)"
+      description: "Run `scenecraft report` in your terminal and paste the complete Markdown output here. Personal paths, usernames, and tokens are automatically redacted."
+      render: text
+      placeholder: |
+        Run:
+            scenecraft report
+        Then paste the entire output block here.
+    validations:
+      required: true
+  - type: textarea
+    id: extra-context
+    attributes:
+      label: "Additional Context / Screenshots"
+      description: "Optional screenshots, terminal traces, or script samples."
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy-confirmation
+    attributes:
+      label: "Privacy & Verification"
+      options:
+        - label: "I have verified that the pasted report and logs do not contain private tokens, passwords, or personal keys."
+          required: true
