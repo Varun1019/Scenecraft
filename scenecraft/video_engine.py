@@ -30,6 +30,27 @@ EXPORT_PROFILE_VERTICAL = {
 }
 
 
+
+def escape_ffmpeg_filter_path(path: Path | str) -> str:
+    """Escape a path for FFmpeg filtergraph strings (e.g. ass, subtitles).
+
+    Normalizes backslashes to forward slashes, escapes colons (for Windows drive letters),
+    and escapes single quotes.
+    """
+    resolved = str(Path(path).resolve())
+    normalized = resolved.replace("\\", "/")
+    escaped = normalized.replace(":", "\\:").replace("'", "\\'")
+    return escaped
+
+
+def get_bundled_fonts_dir() -> Optional[Path]:
+    """Return path to bundled fonts directory if present."""
+    base = Path(__file__).resolve().parent.parent / "assets" / "fonts"
+    if base.is_dir():
+        return base
+    return None
+
+
 class VideoEngine:
     """Composes scenes, Ken Burns camera movements, audio tracks, and subtitles into MP4."""
 
@@ -38,15 +59,16 @@ class VideoEngine:
         self.nvenc_available = self._detect_nvenc()
 
     def _detect_nvenc(self) -> bool:
-        """Detect whether FFmpeg supports NVIDIA NVENC hardware acceleration."""
+        """Detect whether FFmpeg can actually encode using h264_nvenc via a real test encode."""
+        test_cmd = [
+            "ffmpeg", "-y", "-v", "error",
+            "-f", "lavfi", "-i", "nullsrc=s=64x64:d=0.1",
+            "-c:v", "h264_nvenc",
+            "-f", "null", "-"
+        ]
         try:
-            res = subprocess.run(
-                ["ffmpeg", "-hide_banner", "-encoders"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            return "h264_nvenc" in res.stdout
+            res = subprocess.run(test_cmd, capture_output=True, timeout=3)
+            return res.returncode == 0
         except Exception:
             return False
 
@@ -471,8 +493,13 @@ class VideoEngine:
         # 4. Final render: merge video + mixed audio + optional ASS subtitles
         should_burn = burn_subtitles and subtitles_ass and Path(subtitles_ass).is_file()
         if should_burn:
-            sub_path_escaped = str(Path(subtitles_ass).resolve()).replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
-            video_filter_str = f";[0:v]ass='{sub_path_escaped}'[out_video]"
+            sub_escaped = escape_ffmpeg_filter_path(subtitles_ass)
+            fonts_dir = get_bundled_fonts_dir()
+            if fonts_dir and fonts_dir.is_dir():
+                fonts_escaped = escape_ffmpeg_filter_path(fonts_dir)
+                video_filter_str = f";[0:v]ass=filename='{sub_escaped}':fontsdir='{fonts_escaped}'[out_video]"
+            else:
+                video_filter_str = f";[0:v]ass=filename='{sub_escaped}'[out_video]"
             video_map = "[out_video]"
         else:
             video_filter_str = ""
