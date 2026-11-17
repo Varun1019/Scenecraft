@@ -53,21 +53,54 @@ class ResourceManager:
         ram_used_mb = 0.0
         ram_total_mb = 0.0
         ram_pct = 0.0
-        try:
-            with open("/proc/meminfo", "r") as f:
-                mem = {}
-                for line in f:
-                    parts = line.split(":")
-                    if len(parts) == 2:
-                        k = parts[0].strip()
-                        v = parts[1].strip().split()[0]
-                        mem[k] = float(v) / 1024.0  # MB
-                ram_total_mb = mem.get("MemTotal", 16000.0)
-                mem_avail = mem.get("MemAvailable", 8000.0)
-                ram_used_mb = ram_total_mb - mem_avail
-                ram_pct = round((ram_used_mb / ram_total_mb) * 100.0, 1)
-        except Exception:
-            pass
+
+        if os.name == "nt":
+            try:
+                import ctypes
+                class MEMORYSTATUSEX(ctypes.Structure):
+                    _fields_ = [
+                        ("dwLength", ctypes.c_ulong),
+                        ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong),
+                        ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong),
+                        ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong),
+                        ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("sullAvailExtendedVirtual", ctypes.c_ulonglong),
+                    ]
+                stat = MEMORYSTATUSEX()
+                stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+                if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat)):
+                    ram_total_mb = stat.ullTotalPhys / (1024.0 * 1024.0)
+                    ram_avail_mb = stat.ullAvailPhys / (1024.0 * 1024.0)
+                    ram_used_mb = ram_total_mb - ram_avail_mb
+                    ram_pct = float(stat.dwMemoryLoad)
+            except Exception:
+                pass
+
+        if ram_total_mb == 0.0:
+            try:
+                with open("/proc/meminfo", "r") as f:
+                    mem = {}
+                    for line in f:
+                        parts = line.split(":")
+                        if len(parts) == 2:
+                            k = parts[0].strip()
+                            v = parts[1].strip().split()[0]
+                            mem[k] = float(v) / 1024.0  # MB
+                    ram_total_mb = mem.get("MemTotal", 16000.0)
+                    mem_avail = mem.get("MemAvailable", 8000.0)
+                    ram_used_mb = ram_total_mb - mem_avail
+                    ram_pct = round((ram_used_mb / ram_total_mb) * 100.0, 1)
+            except Exception:
+                pass
+
+        if ram_total_mb == 0.0:
+            # Universal fallback when no OS metric provider is available
+            ram_total_mb = 8192.0
+            ram_used_mb = 4096.0
+            ram_pct = 50.0
 
         gpu_util = 0.0
         vram_used = 0.0
