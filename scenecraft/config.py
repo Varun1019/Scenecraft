@@ -126,3 +126,29 @@ def get_config() -> ScenecraftConfig:
 def set_config(config: ScenecraftConfig) -> None:
     global _GLOBAL_CONFIG
     _GLOBAL_CONFIG = config
+
+
+def get_bridge_token() -> str:
+    """Get or generate persistent local extension bridge token."""
+    import json
+    import secrets
+
+    token_file = DEFAULT_CACHE_DIR / "bridge_token.json"
+    if token_file.is_file():
+        try:
+            with open(token_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                tok = data.get("token")
+                if tok:
+                    return str(tok).strip()
+        except Exception:
+            pass
+
+    DEFAULT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    tok = secrets.token_hex(16)
+    try:
+        with open(token_file, "w", encoding="utf-8") as f:
+            json.dump({"token": tok}, f, indent=2)
+    except Exception:
+        pass
+    return tok

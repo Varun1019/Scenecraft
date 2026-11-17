@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flow Studio</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+    }
+
+    body {
+      width: 360px;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      font-size: 13px;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .brand-icon svg {
+      width: 15px;
+      height: 15px;
+      fill: #fff;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.2px;
+    }
+
+    .brand-version {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .status-pill {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 7px 10px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748b;
+      flex-shrink: 0;
+    }
+
+    .status-dot.active {
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    }
+
+    .status-dot.error {
+      background: var(--error);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+    }
+
+    /* Composer Section */
+    .composer-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .textarea-wrapper {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 76px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 10px;
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s ease;
+      line-height: 1.4;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    /* Style Chips */
+    .chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 4px 8px;
+      border-radius: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .chip:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #c7d2fe;
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    /* Aspect Ratio Control */
+    .aspect-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 4px;
+    }
+
+    .aspect-option {
+      flex: 1;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+    }
+
+    .aspect-option.active {
+      background: rgba(99, 102, 241, 0.25);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Action Button */
+    .btn-generate {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      border: none;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Activity Status */
+    .activity-box {
+      margin-top: 12px;
+      padding: 9px 12px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .activity-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Recent Downloads Section */
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 14px 0 8px 0;
+    }
+
+    .history-list {
+      max-height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .history-prompt {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+    }
+
+    .history-time {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="brand-title">Flow Studio</div>
+    </div>
+    <div class="brand-version">v2.0 MCP</div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-pill" id="bridgePill" title="Antigravity Bridge (Port 8792)">
+      <span class="status-dot" id="bridgeDot"></span>
+      <span id="bridgeText">Antigravity Bridge</span>
+    </div>
+    <div class="status-pill" id="flowPill" title="Target Flow Webpage">
+      <span class="status-dot" id="flowDot"></span>
+      <span id="flowText">Flow Tab</span>
+    </div>
+  </div>
+
+  <!-- Prompt Composer -->
+  <div class="composer-label">
+    <span>Prompt Description</span>
+    <span id="charCount">0</span>
+  </div>
+  <div class="textarea-wrapper">
+    <textarea id="promptInput" placeholder="Describe the image you want Flow to generate..."></textarea>
+  </div>
+
+  <!-- Quick Styles -->
+  <div class="chips">
+    <div class="chip" data-style="Cinematic 8K, photorealistic, dramatic lighting">🎬 Cinematic</div>
+    <div class="chip" data-style="Hyper-detailed anime style, vibrant colors">🎨 Anime</div>
+    <div class="chip" data-style="Studio product photography, clean backdrop, 8k">📸 Product</div>
+    <div class="chip" data-style="Cyberpunk neon lighting, volumetric fog, gritty">🌆 Cyberpunk</div>
+  </div>
+
+  <!-- Aspect Ratio Selector -->
+  <div class="aspect-row" id="aspectControl">
+    <div class="aspect-option active" data-aspect="16:9">16:9 Wide</div>
+    <div class="aspect-option" data-aspect="1:1">1:1 Square</div>
+    <div class="aspect-option" data-aspect="9:16">9:16 Portrait</div>
+  </div>
+
+  <!-- Action Button -->
+  <button class="btn-generate" id="generateBtn">
+    <span id="btnIcon">⚡</span>
+    <span id="btnText">Generate & Auto-Download</span>
+  </button>
+
+  <!-- Activity Box -->
+  <div class="activity-box">
+    <span id="activityDot" style="color: #6366f1;">●</span>
+    <span class="activity-text" id="activityText">Ready for prompt or Antigravity call</span>
+  </div>
+
+  <!-- History Section -->
+  <div class="section-title">Recent Generations</div>
+  <div class="history-list" id="historyList">
+    <div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 10px;">
+      No recent generations yet
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

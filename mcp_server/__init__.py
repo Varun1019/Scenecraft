@@ -1,0 +1,1 @@
+"""Scenecraft MCP Server package."""

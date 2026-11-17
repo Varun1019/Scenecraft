@@ -163,7 +163,10 @@ class FlowClient:
         # 1. Check live DOM detection from Flow extension bridge (port 8795)
         dom_snapshot = None
         try:
-            req = urllib.request.Request("http://127.0.0.1:8795/api/dom/snapshot", headers={"User-Agent": "Scenecraft"})
+            from scenecraft.config import get_bridge_token
+            tok = get_bridge_token()
+            headers = {"User-Agent": "Scenecraft", "Authorization": f"Bearer {tok}", "X-Bridge-Token": tok}
+            req = urllib.request.Request("http://127.0.0.1:8795/api/dom/snapshot", headers=headers)
             with urllib.request.urlopen(req, timeout=1.0) as resp:
                 dom_snapshot = json.loads(resp.read().decode("utf-8"))
         except Exception:
