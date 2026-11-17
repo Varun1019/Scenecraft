@@ -17,7 +17,7 @@ node server/mcp-server.cjs
   "mcpServers": {
     "flow-studio-pro": {
       "command": "node",
-      "args": ["./extension/server/mcp-server.cjs"]
+      "args": ["extension/server/mcp-server.cjs"]
     }
   }
 }
