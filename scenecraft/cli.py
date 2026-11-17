@@ -8,14 +8,6 @@ import os
 import sys
 from pathlib import Path
 
-from scenecraft.audio_manager import AudioManager
-from scenecraft.flow_client import FlowClient
-from scenecraft.pipeline import ScenecraftPipeline, sanitize_filename
-from scenecraft.prompt_builder import build_prompts_from_scenes
-from scenecraft.story_gen import generate_story
-from scenecraft.story_engine import StoryEngine, StoryPlan, SeriesBible, slugify
-from scenecraft.caption_generator import CaptionGenerator, SocialCaption, copy_to_clipboard
-from scenecraft.pipeline_longform import LongformPipeline
 import shutil
 import subprocess
 
@@ -131,6 +123,7 @@ def cmd_script(args):
 
 def cmd_produce(args):
     """Produce long-form cinematic video production with resume capability."""
+    from scenecraft.pipeline_longform import LongformPipeline
     workspace = Path(args.workspace or Path.cwd()).resolve()
     pipeline = LongformPipeline(workspace_dir=workspace, video_model=getattr(args, "model", "omni-flash"))
     pipeline.produce(
@@ -144,6 +137,8 @@ def cmd_produce(args):
 
 def cmd_status(args):
     """Inspect environment, Flow Connector status, and audio licensing."""
+    from scenecraft.flow_client import FlowClient
+    from scenecraft.audio_manager import AudioManager
     print("\n--- Scenecraft Environment & Status ---")
     client = FlowClient()
     print(f"Flow Connector CLI installed: {'YES' if client.cli_available else 'NO'}")
@@ -166,6 +161,7 @@ def cmd_status(args):
 
 def cmd_plan(args):
     """Generate and display a high-retention Story Plan before spending any image credits."""
+    from scenecraft.story_engine import StoryEngine, slugify
     workspace = Path(args.workspace or Path.cwd()).resolve()
     engine = StoryEngine(workspace)
     title = args.title or "The 30th Floor Lockdown"
@@ -315,6 +311,7 @@ def cmd_setup(args):
 
 def cmd_make(args):
     """Run full deterministic pipeline from project.json or script."""
+    from scenecraft.pipeline import ScenecraftPipeline
     project_path = Path(args.project).resolve()
     if not project_path.is_file():
         print(f"[!] Error: Project file not found: {project_path}")
@@ -332,6 +329,8 @@ def cmd_make(args):
 
 def cmd_visuals(args):
     """Generate visual image assets from project.json scenes via Google Flow."""
+    from scenecraft.story_engine import slugify
+    from scenecraft.flow_client import FlowClient
     project_path = Path(args.project).resolve()
     if not project_path.is_file():
         print(f"[!] Error: Project file not found: {project_path}")
@@ -459,11 +458,23 @@ def cmd_validate(args):
 
 def cmd_doctor(args):
     """Run comprehensive system diagnostics and pre-flight checks."""
+    if getattr(args, "report", False):
+        from scenecraft.report import generate_markdown_report
+        workspace = Path(args.workspace) if getattr(args, "workspace", None) else None
+        print(generate_markdown_report(workspace_root=workspace))
+        return
     from scenecraft.doctor import SystemDoctor
     doc = SystemDoctor()
     print("\n" + doc.format_report() + "\n")
     if any(c.status == "FAIL" for c in doc.run_all_checks()):
         sys.exit(1)
+
+
+def cmd_report(args):
+    """Generate and print a sanitized Markdown diagnostic report for GitHub issues."""
+    from scenecraft.report import generate_markdown_report
+    workspace = Path(args.workspace) if getattr(args, "workspace", None) else None
+    print(generate_markdown_report(workspace_root=workspace))
 
 
 def cmd_storage(args):
@@ -507,6 +518,7 @@ def cmd_storage(args):
 
 def cmd_auto(args):
     """Auto-Story mode: generates original story and produces finished video."""
+    from scenecraft.pipeline import ScenecraftPipeline
     workspace = Path(args.workspace or Path.cwd()).resolve()
     pipeline = ScenecraftPipeline(
         workspace_dir=workspace,
@@ -536,6 +548,7 @@ def cmd_auto(args):
 
 def cmd_run(args):
     """Generate finished short or horizontal film from story script, plan, or title."""
+    from scenecraft.pipeline import ScenecraftPipeline
     workspace = Path(args.workspace or Path.cwd()).resolve()
     pipeline = ScenecraftPipeline(
         workspace_dir=workspace,
@@ -716,6 +729,9 @@ def cmd_thumbnail(args):
 
 def cmd_test_flow(args):
     """Generate exactly 3 test images from Google Flow for a story title, without video render."""
+    from scenecraft.flow_client import FlowClient
+    from scenecraft.story_gen import generate_story
+    from scenecraft.prompt_builder import build_prompts_from_scenes
     title = (args.title or "The 30th Floor").strip()
     print(f"\n==========================================")
     print(f"[*] Testing Google Flow Image Generation: '{title}'")
@@ -1038,6 +1054,7 @@ def cmd_caption(args):
     caption_txt_path = target_bundle / "social_caption.txt"
     caption_html_path = target_bundle / "caption_card.html"
 
+    from scenecraft.caption_generator import CaptionGenerator, SocialCaption, copy_to_clipboard
     caption_gen = CaptionGenerator(workspace)
 
     # Load or generate caption
@@ -1294,7 +1311,14 @@ def main():
 
     # 'doctor' subcommand
     doc_parser = subparsers.add_parser("doctor", help="Run comprehensive pre-flight self-tests across GPU, FFmpeg, Flow, and VoiceStudio")
+    doc_parser.add_argument("--report", action="store_true", help="Print Markdown report suitable for GitHub bug reports")
+    doc_parser.add_argument("--workspace", "-w", type=str, default=None, help="Workspace directory")
     doc_parser.set_defaults(func=cmd_doctor)
+
+    # 'report' subcommand
+    report_parser = subparsers.add_parser("report", help="Generate a sanitized Markdown diagnostic report for GitHub issues")
+    report_parser.add_argument("--workspace", "-w", type=str, default=None, help="Workspace directory")
+    report_parser.set_defaults(func=cmd_report)
 
     # 'storage' subcommand
     storage_parser = subparsers.add_parser("storage", help="Audit and clean unused intermediate assets, clips, and audio files")
@@ -1439,6 +1463,9 @@ def main():
     val_parser.add_argument("video", type=str, help="Path to MP4 video file to validate")
     val_parser.set_defaults(func=cmd_validate)
 
+    from scenecraft.logger import setup_logging
+    setup_logging()
+
     args = parser.parse_args()
     if not args.command:
         if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
@@ -1448,12 +1475,44 @@ def main():
             args.voice = "en-US-AndrewMultilingualNeural"
             args.rate = "+0%"
             args.pitch = "-2Hz"
-            cmd_run(args)
+            try:
+                cmd_run(args)
+            except KeyboardInterrupt:
+                sys.exit(130)
+            except Exception as exc:
+                _handle_cli_crash(exc)
             return
         parser.print_help()
         sys.exit(0)
 
-    args.func(args)
+    try:
+        args.func(args)
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except SystemExit:
+        raise
+    except Exception as exc:
+        _handle_cli_crash(exc)
+
+
+def _handle_cli_crash(exc: Exception):
+    """Log unexpected CLI crash and print helpful user instructions."""
+    import logging
+    import traceback
+    logging.getLogger("scenecraft").error("CLI unhandled crash: %s\n%s", exc, traceback.format_exc())
+    print(
+        "\n" + "=" * 70 + "\n"
+        f"💥 SCENECRAFT CRASH DETECTED: {type(exc).__name__}: {exc}\n"
+        + "=" * 70 + "\n"
+        "An unexpected error occurred during execution.\n"
+        "To report this issue or ask for help without leaking private data, run:\n\n"
+        "    scenecraft report\n\n"
+        "Paste the Markdown output into a GitHub issue at:\n"
+        "https://github.com/Varun1019/Scenecraft/issues/new/choose\n"
+        + "=" * 70 + "\n",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 if __name__ == "__main__":

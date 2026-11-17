@@ -12,9 +12,11 @@ try:
     import platformdirs
     DEFAULT_CACHE_DIR = Path(platformdirs.user_cache_dir("scenecraft"))
     DEFAULT_DATA_DIR = Path(platformdirs.user_data_dir("scenecraft"))
+    DEFAULT_LOG_DIR = Path(platformdirs.user_log_dir("scenecraft"))
 except ImportError:
     DEFAULT_CACHE_DIR = Path.home() / ".cache" / "scenecraft"
     DEFAULT_DATA_DIR = Path.home() / ".local" / "share" / "scenecraft"
+    DEFAULT_LOG_DIR = Path.home() / ".local" / "state" / "scenecraft" / "logs"
 
 try:
     import yaml
@@ -47,6 +49,7 @@ class ScenecraftConfig:
     # Storage & Cache
     cache_dir: Path = field(default_factory=lambda: DEFAULT_CACHE_DIR)
     models_dir: Path = field(default_factory=lambda: DEFAULT_CACHE_DIR / "models")
+    log_dir: Path = field(default_factory=lambda: DEFAULT_LOG_DIR)
     output_dir: Path = field(default_factory=lambda: Path.cwd() / "output")
     temp_dir: Path = field(default_factory=lambda: Path(tempfile.gettempdir()))
 
