@@ -1,5 +1,6 @@
 """Unit tests for VoiceStudio integration in Scenecraft."""
 
+import tempfile
 import unittest
 from pathlib import Path
 from scenecraft.voicestudio_client import VoiceStudioClient
@@ -9,7 +10,7 @@ from scenecraft.narration import synthesize_scene_narration, get_audio_duration
 class TestVoiceStudioIntegration(unittest.TestCase):
     def setUp(self):
         self.client = VoiceStudioClient()
-        self.test_dir = Path("/tmp/scenecraft_voicestudio_tests")
+        self.test_dir = Path(tempfile.gettempdir()) / "scenecraft_voicestudio_tests"
         self.test_dir.mkdir(parents=True, exist_ok=True)
 
     def test_client_init(self):

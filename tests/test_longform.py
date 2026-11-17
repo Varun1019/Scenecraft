@@ -72,7 +72,7 @@ class TestFlowVideoModelsAndValidation(unittest.TestCase):
         with self.assertRaises(FlowConnectionError) as ctx:
             self.client.generate_video(
                 prompt="Test prompt",
-                output_path=Path("/tmp/nonexistent.mp4"),
+                output_path=Path(tempfile.gettempdir()) / "nonexistent.mp4",
                 model="imaginary-super-video-v99",
             )
         self.assertIn("Unsupported Flow video model", str(ctx.exception))

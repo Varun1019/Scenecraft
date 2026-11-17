@@ -36,44 +36,36 @@ GENRE_HASHTAGS = {
 
 
 def copy_to_clipboard(text: str) -> bool:
-    """Copy text to system clipboard across Wayland, X11, macOS, and Windows."""
-    # 1. Wayland (wl-copy)
-    if shutil.which("wl-copy"):
-        try:
-            p = subprocess.Popen(["wl-copy"], stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
-            p.communicate(text.encode("utf-8"))
-            if p.returncode == 0:
-                return True
-        except Exception:
-            pass
-
-    # 2. X11 (xclip)
-    if shutil.which("xclip"):
-        try:
-            p = subprocess.Popen(["xclip", "-selection", "clipboard"], stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
-            p.communicate(text.encode("utf-8"))
-            if p.returncode == 0:
-                return True
-        except Exception:
-            pass
-
-    # 3. macOS (pbcopy)
-    if shutil.which("pbcopy"):
-        try:
-            p = subprocess.Popen(["pbcopy"], stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
-            p.communicate(text.encode("utf-8"))
-            if p.returncode == 0:
-                return True
-        except Exception:
-            pass
-
-    # 4. python pyperclip fallback if installed
+    """Copy text to system clipboard across Windows, Wayland, X11, and macOS."""
     try:
         import pyperclip
         pyperclip.copy(text)
         return True
     except Exception:
         pass
+
+    if shutil.which("clip"):
+        try:
+            p = subprocess.Popen(["clip"], stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            p.communicate(text.encode("utf-8"))
+            if p.returncode == 0:
+                return True
+        except Exception:
+            pass
+
+    for tool, args in [
+        ("wl-copy", ["wl-copy"]),
+        ("xclip", ["xclip", "-selection", "clipboard"]),
+        ("pbcopy", ["pbcopy"]),
+    ]:
+        if shutil.which(tool):
+            try:
+                p = subprocess.Popen(args, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                p.communicate(text.encode("utf-8"))
+                if p.returncode == 0:
+                    return True
+            except Exception:
+                pass
 
     return False
 

@@ -415,8 +415,15 @@ class FlowClient:
                         raw_url = m.group(1).rstrip(chr(92))
                         clean_url = raw_url.replace(r"\u003d", "=").replace(r"\u0026", "&").replace(chr(92), "")
                         temp_dl = output_path.with_suffix(".tmp.mp4")
-                        res = subprocess.run(["curl", "-s", "-L", clean_url, "-o", str(temp_dl)], timeout=90)
-                        if res.returncode == 0 and temp_dl.is_file() and temp_dl.stat().st_size > 5000:
+                        success = False
+                        try:
+                            req = urllib.request.Request(clean_url, headers={"User-Agent": "Mozilla/5.0 Scenecraft"})
+                            with urllib.request.urlopen(req, timeout=90) as resp, open(temp_dl, "wb") as out_f:
+                                shutil.copyfileobj(resp, out_f)
+                            success = temp_dl.is_file() and temp_dl.stat().st_size > 5000
+                        except Exception:
+                            success = False
+                        if success:
                             val = self.video_quality_controller.validate_video(temp_dl)
                             if val.valid:
                                 temp_dl.replace(output_path)

@@ -1,0 +1,28 @@
+# ==============================================================================
+# Scenecraft Configuration Template
+# Copy this file to config.yaml and adjust for your local setup.
+# ==============================================================================
+
+# TTS & Narration
+tts_engine: omnivoice          # omnivoice (local :3900) or edge_tts (zero-setup fallback)
+tts_base_url: http://127.0.0.1:3900
+voice_id: "6f7af622"           # Voice profile ID (e.g. 6f7af622 for Rooftop Survivor)
+voice_speed: 0.90              # Narration speed multiplier
+voice_style: natural           # Delivery style
+
+# Video Encoding
+video_width: 1080              # Vertical default: 1080 (horizontal: 1920)
+video_height: 1920             # Vertical default: 1920 (horizontal: 1080)
+fps: 30                        # Framerate
+encoder: auto                  # auto (detects NVENC GPU, falls back to libx264 CPU)
+crf: 19                        # Quality factor for CPU encoding
+audio_duck_lufs: -14.0         # Master audio loudness target
+
+# Flow Extension & Bridge
+extension_host: 127.0.0.1
+extension_port: 8795
+flow_auto_port: 8791
+
+# Cleaner Settings
+cleaner_threads: 4
+cleaner_model_name: lama_fp32.onnx

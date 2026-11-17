@@ -94,14 +94,28 @@ class ResourceManager:
             except Exception:
                 pass
 
-        # Count active FFmpeg processes
+        # Count active FFmpeg processes cross-platform
         ffmpeg_count = 0
         try:
-            res = subprocess.run(["pgrep", "-c", "ffmpeg"], capture_output=True, text=True, timeout=2)
-            if res.returncode == 0 and res.stdout.strip():
-                ffmpeg_count = int(res.stdout.strip())
-        except Exception:
-            pass
+            import psutil
+            for p in psutil.process_iter(['name']):
+                try:
+                    pname = (p.info.get('name') or '').lower()
+                    if 'ffmpeg' in pname:
+                        ffmpeg_count += 1
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+        except ImportError:
+            try:
+                if os.name == 'nt':
+                    res = subprocess.run(["tasklist", "/fi", "imagename eq ffmpeg.exe"], capture_output=True, text=True, timeout=2)
+                    ffmpeg_count = res.stdout.lower().count("ffmpeg.exe")
+                else:
+                    res = subprocess.run(["pgrep", "-c", "ffmpeg"], capture_output=True, text=True, timeout=2)
+                    if res.returncode == 0 and res.stdout.strip():
+                        ffmpeg_count = int(res.stdout.strip())
+            except Exception:
+                pass
 
         # Evaluate safety conditions
         safe = True

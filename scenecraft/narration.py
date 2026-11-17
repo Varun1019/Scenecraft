@@ -11,6 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+from scenecraft.config import get_config
 
 
 DEFAULT_VOICE = "en-US-AndrewMultilingualNeural"
@@ -92,13 +93,13 @@ def synthesize_scene_narration(
         elif hex_id:
             vs_voice = v_lower
         elif v_lower in ["permanent", "default", "candidate", "rooftop", "rooftop_survivor"]:
-            vs_voice = "6f7af622"
+            vs_voice = get_config().voice_id
         elif v_lower in ["documentarian"]:
             vs_voice = "b77c1cca"
         else:
-            vs_voice = "6f7af622"
+            vs_voice = get_config().voice_id
         if not vs_voice:
-            vs_voice = "6f7af622"
+            vs_voice = get_config().voice_id
 
         delivery = get_scene_delivery_params(
             emotion=emotion,
@@ -202,7 +203,7 @@ def synthesize_scene_narration(
                 f.write(" ".join(chunk) + "\n\n")
         return dur
 
-    edge_bin = shutil.which("edge-tts") or "/home/varun/.local/bin/edge-tts"
+    edge_bin = shutil.which("edge-tts") or "edge-tts"
     cmd = [
         edge_bin,
         "--voice", voice,
@@ -233,15 +234,10 @@ def _get_whisper_python() -> Optional[str]:
     except ImportError:
         pass
 
-    candidates = [
-        "/home/varun/.config/VoiceStudio/runtime/project/.venv/bin/python",
-        "/home/varun/Desktop/ClipForge/.venv/bin/python3",
-        "/home/varun/.local/share/pipx/venvs/faster-whisper/bin/python",
-    ]
-    for c in candidates:
-        if os.path.isfile(c) and os.access(c, os.X_OK):
-            return c
-    return None
+    for py in [shutil.which("python3"), shutil.which("python")]:
+        if py:
+            return py
+    return sys.executable
 
 
 def extract_word_timestamps(audio_path: Path) -> List[Dict[str, Any]]:

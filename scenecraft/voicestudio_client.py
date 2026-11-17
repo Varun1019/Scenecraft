@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 
+from scenecraft.config import get_config
+
 DEFAULT_VOICESTUDIO_URL = os.environ.get("VOICESTUDIO_BASE_URL", "http://127.0.0.1:3900")
 PERMANENT_NARRATOR_CONFIG = Path(__file__).resolve().parent.parent / "references/voice/permanent_narrator/narrator_config.json"
 CANDIDATE_NARRATOR_CONFIG = Path(__file__).resolve().parent.parent / "references/voice/candidates/rooftop_survivor/candidate_profile_config.json"
@@ -198,7 +200,7 @@ class VoiceStudioClient:
                 speed = float(cfg.get("default_speed", 0.88))
         elif voice in ["candidate", "rooftop_survivor", "rooftop"]:
             cfg = get_candidate_narrator_config()
-            voice = cfg.get("profile_id", "6f7af622")
+            voice = cfg.get("profile_id", get_config().voice_id)
             if speed == 1.0:
                 speed = float(cfg.get("default_speed", 0.88))
 
@@ -248,7 +250,8 @@ if __name__ == "__main__":
     profiles = client.list_profiles()
     print(f"Profiles ({len(profiles)}): {[p.get('name') + ' (' + p.get('id') + ')' for p in profiles]}")
 
-    test_out = Path("/tmp/voicestudio_test_run.wav")
+    import tempfile
+    test_out = Path(tempfile.gettempdir()) / "voicestudio_test_run.wav"
     duration = client.generate_speech(
         text="Voice Studio test generation complete.",
         output_path=test_out,

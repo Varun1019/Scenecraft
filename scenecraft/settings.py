@@ -12,6 +12,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from scenecraft.config import get_config
+
 SETTINGS_DIR = Path(os.environ.get("SCENECRAFT_HOME", Path.home() / ".scenecraft"))
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
 
@@ -19,7 +21,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "auto_thumbnail": True,
     "default_aspect_ratio": "9:16",
     "default_universe": "wanderer",
-    "narrator_profile_id": "6f7af622",
+    "narrator_profile_id": get_config().voice_id,
     "narrator_speed": 0.90,
     "narrator_style": "natural",
     "flow_agent_beats_min": 25,

@@ -16,6 +16,26 @@ from scenecraft.story_gen import generate_story
 from scenecraft.story_engine import StoryEngine, StoryPlan, SeriesBible, slugify
 from scenecraft.caption_generator import CaptionGenerator, SocialCaption, copy_to_clipboard
 from scenecraft.pipeline_longform import LongformPipeline
+import shutil
+import subprocess
+
+
+def open_path(path: Path | str) -> bool:
+    """Open a file or URL in the default application cross-platform."""
+    p_str = str(path)
+    try:
+        if os.name == 'nt':
+            os.startfile(p_str)
+            return True
+        elif sys.platform == 'darwin' and shutil.which("open"):
+            subprocess.run(["open", p_str], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+        elif shutil.which("xdg-open"):
+            subprocess.run(["xdg-open", p_str], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+    except Exception:
+        pass
+    return False
 
 
 def cmd_script(args):
@@ -900,8 +920,7 @@ def cmd_caption(args):
 
     # If --browser requested, open HTML widget immediately
     if args.browser:
-        if shutil.which("xdg-open"):
-            subprocess.run(["xdg-open", str(caption_html_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if open_path(caption_html_path):
             print(f"[✔] Opened Interactive Caption Card in browser: {caption_html_path}")
             return
         else:
@@ -983,8 +1002,7 @@ def cmd_caption(args):
                 except (EOFError, KeyboardInterrupt):
                     pass
             elif choice == "o":
-                if shutil.which("xdg-open"):
-                    subprocess.run(["xdg-open", str(caption_html_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                if open_path(caption_html_path):
                     print(f"  [✔] Opened in browser: {caption_html_path.name}")
                 else:
                     print(f"  Card URL: file://{caption_html_path.resolve()}")

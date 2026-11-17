@@ -118,8 +118,8 @@ class TestCinematicDirectorAndVideo(unittest.TestCase):
             ("static_hold", "1.04"),
         ]
 
-        dummy_img = Path("/tmp/dummy_image.jpg")
-        dummy_out = Path("/tmp/dummy_clip.mp4")
+        dummy_img = Path(tempfile.gettempdir()) / "dummy_image.jpg"
+        dummy_out = Path(tempfile.gettempdir()) / "dummy_clip.mp4"
 
         for mov, expected_sub in motions:
             mock_run.reset_mock()
