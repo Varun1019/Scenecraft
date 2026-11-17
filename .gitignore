@@ -60,3 +60,4 @@ Thumbs.db
 *.wav
 !tests/**/*.wav
 !assets/audio/sfx/*.wav
+*.zip
