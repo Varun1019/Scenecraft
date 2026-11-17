@@ -18,7 +18,7 @@ from scenecraft.story_gen import generate_story, generate_auto_story
 from scenecraft.story_engine import StoryEngine, StoryPlan, SeriesBible
 from scenecraft.video_engine import VideoEngine
 from scenecraft.caption_generator import CaptionGenerator, SocialCaption
-from scenecraft.voice_audition import extract_audition_excerpt, generate_auditions, select_voice_option
+from scenecraft.config import get_config
 from scenecraft.script_handoff import load_script, validate_script
 from scenecraft.scene_director import SceneDirector
 from scenecraft.thumbnail_generator import ThumbnailGenerator
@@ -260,23 +260,15 @@ class ScenecraftPipeline:
 
         print(f"  -> Total Scenes / Beats: {len(raw_scenes)} ({aspect_ratio} {width}x{height})")
 
-        # 2.5 PER-VIDEO VOICE AUDITION & SELECTION
-        print(f"\n[Step 2.5] Extracting 15-25s script excerpt & checking voice auditions...")
-        auditions_dir = bundle_dir / "auditions"
-        excerpt = extract_audition_excerpt(raw_scenes)
-        auditions_meta = generate_auditions(excerpt, auditions_dir)
-        selected_voice = select_voice_option(
-            bundle_dir=bundle_dir,
-            choice=self.voice_option or (self.voice if self.voice not in ["default", "en-US-AndrewMultilingualNeural"] else None),
-            auto_approve=self.auto_approve,
-            interactive=not self.auto_approve,
-        )
-        active_voice = selected_voice["profile_id"]
-        active_speed = selected_voice["speed"]
-        active_style = selected_voice["style"]
+        # 2.5 VOICE SELECTION
+        cfg = get_config()
+        active_voice = self.voice_option or (self.voice if self.voice not in ["default", "en-US-AndrewMultilingualNeural"] else cfg.voice_id)
+        active_speed = cfg.voice_speed
+        active_style = cfg.voice_style
+        voice_name = f"Voice ({active_voice})"
 
         # 3. VOICE-FIRST TIMING: Synthesize complete narration first to get real audio duration
-        print(f"\n[Step 3] VOICE-FIRST TIMING: Synthesizing narration with selected voice ({selected_voice['name']} - {active_voice})...")
+        print(f"\n[Step 3] VOICE-FIRST TIMING: Synthesizing narration with voice ({voice_name} - {active_voice})...")
         audio_dir = bundle_dir / "audio"
         timed_scenes, narration_audio, subtitles_ass = generate_full_narration(
             scenes=raw_scenes,

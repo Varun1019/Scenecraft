@@ -305,11 +305,165 @@ def cmd_audit(args):
     print("==================================================================\n")
 
 
+def cmd_setup(args):
+    """Download LaMa ONNX and Whisper models with resumable progress."""
+    from scenecraft.setup_cmd import run_setup
+    code = run_setup(whisper_model=getattr(args, "whisper_model", "base"), force=getattr(args, "force", False))
+    if code != 0:
+        sys.exit(code)
+
+
+def cmd_make(args):
+    """Run full deterministic pipeline from project.json or script."""
+    project_path = Path(args.project).resolve()
+    if not project_path.is_file():
+        print(f"[!] Error: Project file not found: {project_path}")
+        sys.exit(1)
+
+    pipeline = ScenecraftPipeline(
+        workspace_dir=Path(args.workspace or Path.cwd()).resolve(),
+        dry_run_visuals=getattr(args, "dry_run", False),
+    )
+    res = pipeline.run_plan(project_path)
+    print("\n" + "=" * 60)
+    print(f"🎬 Video Production Complete: {res.get('video_path')}")
+    print("=" * 60)
+
+
+def cmd_visuals(args):
+    """Generate visual image assets from project.json scenes via Google Flow."""
+    project_path = Path(args.project).resolve()
+    if not project_path.is_file():
+        print(f"[!] Error: Project file not found: {project_path}")
+        sys.exit(1)
+    with open(project_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    scenes = data.get("scenes", [])
+    if not scenes:
+        print("[!] No scenes found in project.json")
+        sys.exit(1)
+
+    title = data.get("story_title", data.get("title", "project"))
+    slug = slugify(title)
+    out_dir = Path(args.output).resolve() if getattr(args, "output", None) else Path.cwd() / "output" / slug / "images"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    client = FlowClient()
+    if not getattr(args, "dry_run", False):
+        status = client.check_connection()
+        if not status.get("connected"):
+            print("[!] Google Flow extension is not connected.")
+            print("Run with --dry-run to preview visual prompts without generating.")
+            sys.exit(1)
+
+    print(f"[*] Processing visuals for {len(scenes)} scenes to: {out_dir}")
+    generated = []
+    for idx, scene in enumerate(scenes, 1):
+        prompt = scene.get("prompt") or scene.get("image_prompt") or scene.get("visual_prompt")
+        if not prompt:
+            prompt = scene.get("description") or scene.get("narration") or f"Cinematic scene {idx}"
+        target_path = out_dir / f"scene_{idx:02d}.jpg"
+        print(f"  [{idx}/{len(scenes)}] Prompt: {prompt[:60]}...")
+        if getattr(args, "dry_run", False):
+            print(f"       [DRY RUN] Would write to {target_path}")
+            continue
+        res = client.generate_image(prompt=prompt, output_path=target_path, scene_idx=idx)
+        generated.append(res)
+    print(f"[✔] Visuals generation complete ({len(generated)} images).")
+
+
+def cmd_clean(args):
+    """Clean visible corner watermark from images or videos."""
+    from scenecraft.cleaner import clean_directory, clean_image, CleanerOptions
+    in_path = Path(args.input).resolve()
+    out_dir = Path(args.output).resolve()
+    opts = CleanerOptions(corner=getattr(args, "corner", "bottom-right"))
+
+    if in_path.is_dir():
+        results = clean_directory(in_path, out_dir, opts=opts)
+        print(f"[✔] Cleaned {len(results)} images to: {out_dir}")
+    elif in_path.is_file():
+        out_f = out_dir if out_dir.suffix else out_dir / in_path.name
+        res = clean_image(in_path, out_f, opts=opts)
+        print(f"[✔] Cleaned file saved to: {res}")
+    else:
+        print(f"[!] Invalid input path: {in_path}")
+        sys.exit(1)
+
+
+def cmd_narrate(args):
+    """Synthesize narration from project.json scenes."""
+    project_path = Path(args.project).resolve()
+    if not project_path.is_file():
+        print(f"[!] Error: Project file not found: {project_path}")
+        sys.exit(1)
+    with open(project_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    scenes = data.get("scenes", [])
+    title = data.get("story_title", data.get("title", "narration"))
+    slug = slugify(title)
+    out_dir = Path.cwd() / "output" / slug / "audio"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_file = Path(args.out).resolve() if getattr(args, "out", None) else out_dir / "narration.wav"
+
+    text = " ".join(s.get("narration", "") for s in scenes)
+    from scenecraft.tts import get_tts_engine
+    tts = get_tts_engine(getattr(args, "engine", None))
+    dur = tts.generate(text, out_file)
+    print(f"[✔] Narration generated ({dur:.1f}s): {out_file}")
+
+
+def cmd_subtitles(args):
+    """Generate word-synced ASS subtitles from audio and project.json."""
+    from scenecraft.narration import generate_synchronized_subtitles
+    project_path = Path(args.project).resolve()
+    if not project_path.is_file():
+        print(f"[!] Error: Project file not found: {project_path}")
+        sys.exit(1)
+    with open(project_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    scenes = data.get("scenes", [])
+    audio_path = Path(args.audio).resolve() if getattr(args, "audio", None) else None
+    if not audio_path or not audio_path.is_file():
+        title = data.get("story_title", data.get("title", "narration"))
+        audio_path = Path.cwd() / "output" / slugify(title) / "audio" / "narration.wav"
+
+    if not audio_path.is_file():
+        print(f"[!] Audio file missing for subtitle extraction: {audio_path}")
+        sys.exit(1)
+
+    out_ass = Path(args.out).resolve() if getattr(args, "out", None) else audio_path.parent.parent / "subtitles" / "subtitles.ass"
+    out_ass.parent.mkdir(parents=True, exist_ok=True)
+    res_ass = generate_synchronized_subtitles(scenes, audio_path, out_ass)
+    print(f"[✔] Subtitles generated: {res_ass}")
+
+
+def cmd_validate(args):
+    """Validate video stream integrity and audio/video specs."""
+    vid_p = Path(args.video).resolve()
+    if not vid_p.is_file():
+        print(f"[!] Error: File not found: {vid_p}")
+        sys.exit(1)
+
+    print(f"[*] Validating video stream integrity: {vid_p.name}...")
+    res = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", str(vid_p), "-f", "null", "-"],
+        capture_output=True,
+        text=True,
+    )
+    if res.returncode != 0 or res.stderr.strip():
+        print(f"[✘] Stream corruption detected:\n{res.stderr.strip()}")
+        sys.exit(1)
+    print("[✔] Stream decode verified (zero bitstream corruption).")
+
+
 def cmd_doctor(args):
     """Run comprehensive system diagnostics and pre-flight checks."""
     from scenecraft.doctor import SystemDoctor
     doc = SystemDoctor()
     print("\n" + doc.format_report() + "\n")
+    if any(c.status == "FAIL" for c in doc.run_all_checks()):
+        sys.exit(1)
 
 
 def cmd_storage(args):
@@ -1238,6 +1392,52 @@ def main():
     settings_parser.add_argument("--set", nargs="+", help="Update settings in KEY=VALUE format (e.g. auto_thumbnail=true)")
     settings_parser.add_argument("--workspace", "-w", type=str, default=None, help="Workspace directory")
     settings_parser.set_defaults(func=cmd_settings)
+
+    # 'make' subcommand
+    make_parser = subparsers.add_parser("make", help="Run the full deterministic pipeline from project.json or script")
+    make_parser.add_argument("project", type=str, help="Path to project.json or script")
+    make_parser.add_argument("--dry-run", action="store_true", help="Simulate without remote generation")
+    make_parser.add_argument("--workspace", "-w", type=str, default=None, help="Workspace directory")
+    make_parser.set_defaults(func=cmd_make)
+
+    # 'setup' subcommand
+    setup_parser = subparsers.add_parser("setup", help="Download LaMa ONNX and Whisper models with resumable progress")
+    setup_parser.add_argument("--whisper-model", type=str, default="base", help="Faster-Whisper model name (default: base)")
+    setup_parser.add_argument("--force", action="store_true", help="Force re-download of existing models")
+    setup_parser.set_defaults(func=cmd_setup)
+
+    # 'visuals' subcommand
+    visuals_parser = subparsers.add_parser("visuals", help="Generate AI visual assets from project.json via Google Flow")
+    visuals_parser.add_argument("project", type=str, help="Path to project.json")
+    visuals_parser.add_argument("-o", "--output", type=str, default=None, help="Output directory for generated images")
+    visuals_parser.add_argument("--dry-run", action="store_true", help="Preview prompts without generating")
+    visuals_parser.set_defaults(func=cmd_visuals)
+
+    # 'clean' subcommand
+    clean_parser = subparsers.add_parser("clean", help="Clean visible corner watermarks from images or video")
+    clean_parser.add_argument("input", type=str, help="Input image file or directory")
+    clean_parser.add_argument("-o", "--output", type=str, required=True, help="Output directory or file path")
+    clean_parser.add_argument("--corner", default="bottom-right", choices=["bottom-right", "bottom-left", "top-right", "top-left"])
+    clean_parser.set_defaults(func=cmd_clean)
+
+    # 'narrate' subcommand
+    narrate_parser = subparsers.add_parser("narrate", help="Generate narration audio from project.json")
+    narrate_parser.add_argument("project", type=str, help="Path to project.json")
+    narrate_parser.add_argument("-o", "--out", type=str, default=None, help="Output narration audio path")
+    narrate_parser.add_argument("--engine", type=str, default=None, choices=["omnivoice", "edge_tts", "piper"])
+    narrate_parser.set_defaults(func=cmd_narrate)
+
+    # 'subtitles' subcommand
+    subs_parser = subparsers.add_parser("subtitles", help="Generate word-synced ASS subtitles from project.json and audio")
+    subs_parser.add_argument("project", type=str, help="Path to project.json")
+    subs_parser.add_argument("--audio", "-a", type=str, default=None, help="Path to narration audio WAV")
+    subs_parser.add_argument("-o", "--out", type=str, default=None, help="Output .ass subtitle path")
+    subs_parser.set_defaults(func=cmd_subtitles)
+
+    # 'validate' subcommand
+    val_parser = subparsers.add_parser("validate", help="Validate video bitstream decode and stream integrity")
+    val_parser.add_argument("video", type=str, help="Path to MP4 video file to validate")
+    val_parser.set_defaults(func=cmd_validate)
 
     args = parser.parse_args()
     if not args.command:
