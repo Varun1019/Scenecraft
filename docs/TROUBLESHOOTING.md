@@ -116,6 +116,61 @@ This guide covers common errors encountered when running Scenecraft across Linux
 
 ---
 
+## 7. Windows PowerShell: `Activate.ps1 cannot be loaded because running scripts is disabled`
+
+### Symptoms
+- Running `.\.venv\Scripts\Activate.ps1` produces:
+  `File ...\Activate.ps1 cannot be loaded because running scripts is disabled on this system.`
+
+### Fix
+In PowerShell, change the execution policy for your current user:
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+Then reactivate your virtual environment:
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+---
+
+## 8. Kokoro-82M TTS: Model Missing or `espeakng-loader` Notice
+
+### Symptoms
+- `scenecraft voices` reports `[⚠ MISSING MODELS]` or `[✘ NOT INSTALLED]`
+- Error: `kokoro_onnx not found` or `voices-v1.0.bin missing`
+
+### Fix
+1. Install the Kokoro ONNX optional package:
+   ```bash
+   pip install "scenecraft[kokoro]"
+   ```
+   *(On Windows and Linux, `kokoro-onnx>=0.3.0` bundles precompiled `libespeak-ng` binaries via `espeakng-loader`; you do NOT need to install espeak-ng separately via apt or winget.)*
+2. Download model weights (~108 MB quantized int8 + 26 MB voice pack):
+   ```bash
+   scenecraft setup --tts kokoro
+   ```
+3. Test audio synthesis:
+   ```bash
+   scenecraft voices --preview kokoro --voice af_heart
+   ```
+
+---
+
+## 9. Windows 260-Character Path Limit (MAX_PATH)
+
+### Symptoms
+- Long paths error when downloading Whisper models or pip wheels:
+  `FileNotFoundError: [Errno 2] No such file or directory: '...'`
+
+### Fix
+Enable Long Paths in the Windows Registry (Administrator PowerShell):
+```powershell
+Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+```
+
+---
+
 ## Still Stuck?
 
 Run `scenecraft report` in your workspace terminal, then paste the sanitized report into:

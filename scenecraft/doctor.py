@@ -77,7 +77,7 @@ class SystemDoctor:
         self.cfg = get_config()
 
     def run_all_checks(self) -> List[DiagnosticCheck]:
-        return [
+        checks = [
             self.check_os(),
             self.check_python_env(),
             self.check_dependencies(),
@@ -89,6 +89,10 @@ class SystemDoctor:
             self.check_disk_space(),
             self.check_brand_identity(),
         ]
+        win_check = self.check_windows_environment()
+        if win_check:
+            checks.insert(1, win_check)
+        return checks
 
     def format_report(self) -> str:
         checks = self.run_all_checks()
@@ -269,3 +273,58 @@ class SystemDoctor:
         if missing:
             return DiagnosticCheck("The Wanderer Brand Identity", "WARN", f"Missing style files: {missing}")
         return DiagnosticCheck("The Wanderer Brand Identity", "OK", "Brand references and style config intact")
+
+    def check_windows_environment(self) -> Optional[DiagnosticCheck]:
+        """Run Windows-specific checks for winget, LongPaths, and PowerShell ExecutionPolicy."""
+        if platform.system() != "Windows":
+            return None
+
+        has_winget = shutil.which("winget") is not None
+        ps_policy_ok = True
+        try:
+            res = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", "Get-ExecutionPolicy"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            policy = res.stdout.strip().lower()
+            if policy in ("restricted", "undefined"):
+                ps_policy_ok = False
+        except Exception:
+            pass
+
+        long_paths_ok = True
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\FileSystem") as key:
+                val, _ = winreg.QueryValueEx(key, "LongPathsEnabled")
+                if val != 1:
+                    long_paths_ok = False
+        except Exception:
+            pass
+
+        issues = []
+        hints = []
+        if not ps_policy_ok:
+            issues.append("PowerShell ExecutionPolicy is Restricted")
+            hints.append("Run in PowerShell: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned")
+        if not long_paths_ok:
+            issues.append("Windows Long Paths disabled")
+            hints.append("Run in Admin PowerShell: Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem' -Name 'LongPathsEnabled' -Value 1")
+        if not has_winget:
+            issues.append("winget CLI not detected")
+            hints.append("Install App Installer from Microsoft Store or install Git and FFmpeg manually")
+
+        if issues:
+            return DiagnosticCheck(
+                "Windows System Configuration",
+                "WARN",
+                "; ".join(issues),
+                hint=" | ".join(hints),
+            )
+        return DiagnosticCheck(
+            "Windows System Configuration",
+            "OK",
+            "PowerShell script execution, winget, and path limits verified",
+        )
