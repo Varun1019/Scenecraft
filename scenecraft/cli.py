@@ -327,6 +327,29 @@ def cmd_voices(args):
         sys.exit(code)
 
 
+def cmd_demo(args):
+    """Render a 10-second offline demo video using bundled fixtures."""
+    from scenecraft.demo_cmd import run_demo
+    code = run_demo(
+        live_tts=getattr(args, "live_tts", False),
+        out_dir=getattr(args, "out", None),
+        quiet=getattr(args, "quiet", False),
+    )
+    if code != 0:
+        sys.exit(code)
+
+
+def cmd_init(args):
+    """Scaffold a fresh Scenecraft project directory."""
+    from scenecraft.init_cmd import run_init
+    code = run_init(
+        name=args.name,
+        target_dir=getattr(args, "target_dir", None),
+    )
+    if code != 0:
+        sys.exit(code)
+
+
 def cmd_make(args):
     """Run full deterministic pipeline from project.json or script."""
     from scenecraft.pipeline import ScenecraftPipeline
@@ -337,11 +360,18 @@ def cmd_make(args):
 
     pipeline = ScenecraftPipeline(
         workspace_dir=Path(args.workspace or Path.cwd()).resolve(),
-        dry_run_visuals=getattr(args, "dry_run", False),
+        dry_run=getattr(args, "dry_run", False),
+        images_dir=getattr(args, "images_dir", None),
+        clean_user_images=getattr(args, "clean", False),
+        force=getattr(args, "force", False),
+        quiet=getattr(args, "quiet", False),
+        verbose=getattr(args, "verbose", False),
     )
     res = pipeline.run_plan(project_path)
+    if getattr(args, "dry_run", False):
+        return
     print("\n" + "=" * 60)
-    print(f"🎬 Video Production Complete: {res.get('video_path')}")
+    print(f"🎬 Video Production Complete: {res.get('mp4_path') or res.get('video_path')}")
     print("=" * 60)
 
 
@@ -1435,10 +1465,28 @@ def main():
     settings_parser.add_argument("--workspace", "-w", type=str, default=None, help="Workspace directory")
     settings_parser.set_defaults(func=cmd_settings)
 
+    # 'demo' subcommand
+    demo_parser = subparsers.add_parser("demo", help="Render a 10-second offline demo video using bundled fixtures")
+    demo_parser.add_argument("--live-tts", action="store_true", help="Synthesize live narration using configured TTS engine")
+    demo_parser.add_argument("-o", "--out", type=str, default=None, help="Output directory for demo MP4")
+    demo_parser.add_argument("--quiet", "-q", action="store_true", help="Suppress progress output")
+    demo_parser.set_defaults(func=cmd_demo)
+
+    # 'init' subcommand
+    init_parser = subparsers.add_parser("init", help="Scaffold a fresh Scenecraft project directory")
+    init_parser.add_argument("name", type=str, help="Project name (e.g. my_story)")
+    init_parser.add_argument("--target-dir", "-t", type=str, default=None, help="Parent directory (default: current working dir)")
+    init_parser.set_defaults(func=cmd_init)
+
     # 'make' subcommand
     make_parser = subparsers.add_parser("make", help="Run the full deterministic pipeline from project.json or script")
     make_parser.add_argument("project", type=str, help="Path to project.json or script")
-    make_parser.add_argument("--dry-run", action="store_true", help="Simulate without remote generation")
+    make_parser.add_argument("--images-dir", type=str, default=None, help="Directory of existing scene images (skips watermark cleaning unless --clean)")
+    make_parser.add_argument("--clean", action="store_true", help="Apply watermark cleaning to custom images from --images-dir")
+    make_parser.add_argument("--force", action="store_true", help="Force re-execution of all pipeline steps ignoring state file")
+    make_parser.add_argument("--dry-run", action="store_true", help="Print planned execution steps without generating")
+    make_parser.add_argument("--quiet", "-q", action="store_true", help="Suppress progress banners and detailed logs")
+    make_parser.add_argument("--verbose", action="store_true", help="Print verbose step logs")
     make_parser.add_argument("--workspace", "-w", type=str, default=None, help="Workspace directory")
     make_parser.set_defaults(func=cmd_make)
 

@@ -84,6 +84,17 @@ class StoryPlan:
         valid_fields = cls.__dataclass_fields__.keys()
         clean_data = {k: v for k, v in data.items() if k in valid_fields}
         clean_data["scenes"] = scenes
+        clean_data.setdefault("title", data.get("story_title", "Untitled Story"))
+        clean_data.setdefault("premise", data.get("summary", data.get("description", "")))
+        clean_data.setdefault("genre", data.get("genre", "survival_suspense"))
+        clean_data.setdefault("intended_audience", data.get("audience", "general"))
+        clean_data.setdefault(
+            "opening_hook",
+            data.get("opening_hook", (getattr(scenes[0], "narration", "") if scenes else ""))
+        )
+        clean_data.setdefault("characters", data.get("characters", []))
+        clean_data.setdefault("ending", data.get("ending", ""))
+        clean_data.setdefault("engagement_question", data.get("engagement_question", ""))
         return cls(**clean_data)
 
     def to_storyboard_dict(self) -> Dict[str, Any]:

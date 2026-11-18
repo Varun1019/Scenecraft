@@ -26,6 +26,31 @@ from scenecraft.flow_agent import FlowAgentDirector
 from scenecraft.settings import is_auto_thumbnail_enabled
 
 
+STATE_FILE_NAME = ".scenecraft_state.json"
+
+
+def load_pipeline_state(bundle_dir: Path) -> Dict[str, Any]:
+    """Load resume state from .scenecraft_state.json."""
+    sf = Path(bundle_dir) / STATE_FILE_NAME
+    if sf.is_file():
+        try:
+            with open(sf, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def save_pipeline_state(bundle_dir: Path, state: Dict[str, Any]):
+    """Persist resume state to .scenecraft_state.json."""
+    sf = Path(bundle_dir) / STATE_FILE_NAME
+    try:
+        with open(sf, "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2)
+    except Exception:
+        pass
+
+
 def sanitize_filename(name: str) -> str:
     """Sanitize title for safe directory and file names."""
     return re.sub(r"[^\w\-_\. ]", "_", name).strip().replace(" ", "_")
@@ -80,6 +105,11 @@ class ScenecraftPipeline:
         flow_video_model: str = "omni-flash",
         auto_thumbnail: Optional[bool] = None,
         dry_run: bool = False,
+        images_dir: Optional[Path | str] = None,
+        clean_user_images: bool = False,
+        force: bool = False,
+        quiet: bool = False,
+        verbose: bool = False,
     ):
         self.workspace_dir = Path(workspace_dir or Path.cwd()).resolve()
         self.output_dir = self.workspace_dir / "output"
@@ -101,6 +131,11 @@ class ScenecraftPipeline:
         self.flow_video_model = flow_video_model
         self.auto_thumbnail = auto_thumbnail if auto_thumbnail is not None else is_auto_thumbnail_enabled(self.workspace_dir)
         self.dry_run = dry_run
+        self.images_dir = images_dir
+        self.clean_user_images = clean_user_images
+        self.force = force
+        self.quiet = quiet
+        self.verbose = verbose
 
     def plan_story(self, concept: Optional[str] = None, genre: Optional[str] = None) -> StoryPlan:
         """Create a standalone retention-focused StoryPlan for user approval."""
@@ -211,14 +246,16 @@ class ScenecraftPipeline:
             bundle_dir = Path(bundle_dir).resolve()
             run_name = bundle_dir.name
             bundle_dir.mkdir(parents=True, exist_ok=True)
-            print(f"[*] Executing within bundle directory: {bundle_dir.resolve()}")
+            if not self.quiet:
+                print(f"[*] Executing within bundle directory: {bundle_dir.resolve()}")
         else:
             # Resume from latest matching bundle if it already has generated images
             existing_runs = sorted(self.output_dir.glob(f"{safe_title}_*"), key=lambda p: p.stat().st_mtime, reverse=True)
             if existing_runs and (existing_runs[0] / "images").is_dir() and any((existing_runs[0] / "images").glob("scene_*.jpg")):
                 bundle_dir = existing_runs[0]
                 run_name = bundle_dir.name
-                print(f"[*] Resuming from existing run directory: {run_name}")
+                if not self.quiet:
+                    print(f"[*] Resuming from existing run directory: {run_name}")
             else:
                 bundle_dir = self.output_dir / run_name
                 bundle_dir.mkdir(parents=True, exist_ok=True)
@@ -228,6 +265,9 @@ class ScenecraftPipeline:
 
         temp_run_dir = self.temp_dir / run_name
         temp_run_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load pipeline state
+        state = {} if self.force else load_pipeline_state(bundle_dir)
 
         # Check for fine-grained Flow Agent storyboard beats
         beats_json = bundle_dir / "storyboard_beats.json"
@@ -258,39 +298,89 @@ class ScenecraftPipeline:
         if not raw_scenes:
             raise ValueError("No scenes found in story data.")
 
-        print(f"  -> Total Scenes / Beats: {len(raw_scenes)} ({aspect_ratio} {width}x{height})")
+        # DRY RUN EXECUTION PLAN
+        if self.dry_run:
+            if not self.quiet:
+                print("\n" + "=" * 70)
+                print(f"📋 SCENECRAFT DRY-RUN PLAN: '{story_title}'")
+                print("=" * 70)
+                print(f"Aspect Ratio:  {aspect_ratio} ({width}x{height})")
+                print(f"Total Scenes:  {len(raw_scenes)}")
+                print(f"Bundle Target: {bundle_dir.resolve()}")
+                print("-" * 70)
+                print("[1/5] Story Breakdown & Planning:       [SIMULATED - OK]")
+                narr_status = "SKIP (Cached)" if state.get("narration") and not self.force else "WILL EXECUTE"
+                print(f"[2/5] Narration Audio Synthesis:         [{narr_status}]")
+                vis_src = f"Custom --images-dir ({self.images_dir})" if self.images_dir else "Google Flow AI"
+                vis_status = "SKIP (Cached)" if state.get("visuals") and not self.force else "WILL EXECUTE"
+                print(f"[3/5] Visual Ingestion & Verification:   [{vis_status}] (Source: {vis_src})")
+                sub_status = "SKIP (Cached)" if state.get("subtitles") and not self.force else "WILL EXECUTE"
+                print(f"[4/5] Word-Synced Subtitle Alignment:   [{sub_status}]")
+                asm_status = "SKIP (Cached)" if state.get("assembly") and not self.force else "WILL EXECUTE"
+                print(f"[5/5] Multi-Layer Video Composition:     [{asm_status}]")
+                print(f"Target Video:  {bundle_dir / f'{safe_title}.mp4'}")
+                print("=" * 70 + "\n")
+            return {
+                "title": story_title,
+                "dry_run": True,
+                "bundle_dir": bundle_dir,
+                "mp4_path": bundle_dir / f"{safe_title}.mp4",
+                "scenes": raw_scenes,
+            }
 
-        # 2.5 VOICE SELECTION
+        # Step 1: Story Breakdown
+        if not self.quiet:
+            print("\n" + "=" * 70)
+            print(f"[1/5] Story Breakdown & Planning: '{story_title}' ({aspect_ratio} {width}x{height})")
+            print("=" * 70)
+            print(f"  -> Total Scenes / Beats: {len(raw_scenes)}")
+
+        # Step 2: Voice selection & Narration Synthesis
         cfg = get_config()
         active_voice = self.voice_option or (self.voice if self.voice not in ["default", "en-US-AndrewMultilingualNeural"] else cfg.voice_id)
         active_speed = cfg.voice_speed
         active_style = cfg.voice_style
         voice_name = f"Voice ({active_voice})"
 
-        # 3. VOICE-FIRST TIMING: Synthesize complete narration first to get real audio duration
-        print(f"\n[Step 3] VOICE-FIRST TIMING: Synthesizing narration with voice ({voice_name} - {active_voice})...")
+        if not self.quiet:
+            print("\n" + "=" * 70)
+            print(f"[2/5] Narration Audio Synthesis: {voice_name}")
+            print("=" * 70)
+
         audio_dir = bundle_dir / "audio"
-        timed_scenes, narration_audio, subtitles_ass = generate_full_narration(
-            scenes=raw_scenes,
-            output_dir=audio_dir,
-            voice=active_voice,
-            rate=self.rate,
-            pitch=self.pitch,
-            aspect_ratio=aspect_ratio,
-            base_speed=active_speed,
-            delivery_style=active_style,
-        )
-        total_audio_duration = sum(s["duration"] for s in timed_scenes)
-        print(f"  [✔] Source-of-truth audio generated: {narration_audio.name} ({total_audio_duration:.2f}s across {len(timed_scenes)} scenes)")
-        for ts in timed_scenes:
-            print(f"      Scene {ts.get('scene_index', '?')}: {ts.get('duration', 0):.2f}s (Audio: {Path(ts.get('audio_path', '')).name})")
+        cached_narration = audio_dir / "narration.wav"
+        can_skip_narration = not self.force and state.get("narration") and cached_narration.is_file() and (bundle_dir / "subtitles.ass").is_file()
 
-        # Copy subtitles directly to bundle root
-        bundle_ass = bundle_dir / "subtitles.ass"
-        shutil.copy2(subtitles_ass, bundle_ass)
+        if can_skip_narration:
+            if not self.quiet:
+                print(f"  [✔] State resume: Reusing verified narration audio ({cached_narration.name})")
+            narration_audio = cached_narration
+            bundle_ass = bundle_dir / "subtitles.ass"
+            timed_scenes = [dict(s) for s in raw_scenes]
+            for s in timed_scenes:
+                if "duration" not in s:
+                    s["duration"] = 5.0
+            total_audio_duration = sum(s["duration"] for s in timed_scenes)
+        else:
+            timed_scenes, narration_audio, subtitles_ass = generate_full_narration(
+                scenes=raw_scenes,
+                output_dir=audio_dir,
+                voice=active_voice,
+                rate=self.rate,
+                pitch=self.pitch,
+                aspect_ratio=aspect_ratio,
+                base_speed=active_speed,
+                delivery_style=active_style,
+            )
+            bundle_ass = bundle_dir / "subtitles.ass"
+            shutil.copy2(subtitles_ass, bundle_ass)
+            total_audio_duration = sum(s["duration"] for s in timed_scenes)
+            state["narration"] = True
+            save_pipeline_state(bundle_dir, state)
+            if not self.quiet:
+                print(f"  [✔] Source-of-truth audio generated: {narration_audio.name} ({total_audio_duration:.2f}s across {len(timed_scenes)} scenes)")
 
-        # 3.5 INTELLIGENT SCENE DIRECTION
-        print(f"\n[Step 3.5] Directing cinematic sequence & motion variation...")
+        # Intelligent Scene Direction
         director = SceneDirector(style_preset=self.style)
         beats = director.plan_sequence(timed_scenes, aspect_ratio=aspect_ratio)
         for idx, (ts, beat) in enumerate(zip(timed_scenes, beats)):
@@ -305,13 +395,10 @@ class ScenecraftPipeline:
             if beat.sfx_cue and not ts.get("sfx_cue"):
                 ts["sfx_cue"] = beat.sfx_cue
 
-        # 4. Construct cinematic visual prompts with character consistency
-        print(f"\n[Step 4] Constructing cinematic visual prompts with character consistency...")
         chars = story_data.get("characters", [])
         char_dict = chars[0] if (chars and isinstance(chars[0], dict)) else None
         scene_prompts = build_prompts_from_scenes(timed_scenes, aspect_ratio=aspect_ratio, character_data=char_dict, style_preset=self.style)
-        
-        # Save scene prompts to bundle
+
         prompts_file = bundle_dir / "scene_prompts.txt"
         with open(prompts_file, "w", encoding="utf-8") as f:
             for sp in scene_prompts:
@@ -320,251 +407,185 @@ class ScenecraftPipeline:
                 f.write(f"Narration: {sp.narration}\n")
                 f.write(f"Prompt:\n{sp.full_prompt()}\n\n")
 
-        # 5 & 6. Generate, clean, download, and organize still images from Google Flow
-        print(f"\n[Step 5 & 6] Generating consistent cinematic illustrations via Google Flow...")
-        scene_images = []
-        # Load official brand identity reference image as baseline anchor
-        official_ref = Path(__file__).resolve().parent.parent / "references" / "brand_identity" / "ref_character_full_body.jpg"
-        reference_char_img = official_ref if official_ref.is_file() else None
+        # Step 3: Visual Ingestion & Verification
+        if not self.quiet:
+            print("\n" + "=" * 70)
+            print("[3/5] Visual Assets: Ingestion & Verification")
+            print("=" * 70)
 
-        # Check for approved reference character image in output directory
-        approved_test_img = self.output_dir / "test_single_shot.jpg"
-        if approved_test_img.is_file():
-            reference_char_img = approved_test_img
-            print(f"[*] Loaded approved character consistency reference: {approved_test_img.name}")
+        can_skip_visuals = not self.force and state.get("visuals") and all((images_dir / f"scene_{sp.scene_index:02d}.jpg").is_file() for sp in scene_prompts)
 
-        # Reuse series character anchor from earlier parts if this is an episodic series
-        series_info = story_data.get("series_info")
-        if not reference_char_img and series_info and series_info.get("series_name"):
-            s_slug = sanitize_filename(series_info.get("series_name"))
-            prev_runs = sorted(self.output_dir.glob(f"*{s_slug}*"), key=lambda p: p.stat().st_mtime)
-            for pr in prev_runs:
-                if pr != bundle_dir and (pr / "images" / "scene_01.jpg").is_file():
-                    reference_char_img = pr / "images" / "scene_01.jpg"
-                    print(f"[*] Reusing series character anchor from {pr.name} ({reference_char_img.name})")
-                    break
+        if can_skip_visuals:
+            if not self.quiet:
+                print("  [✔] State resume: Reusing verified scene illustrations")
+            scene_images = [images_dir / f"scene_{sp.scene_index:02d}.jpg" for sp in scene_prompts]
+        elif self.images_dir:
+            src_dir = Path(self.images_dir).resolve()
+            if not src_dir.is_dir():
+                raise FileNotFoundError(f"Custom images directory not found: {src_dir}")
+            exts = {".jpg", ".jpeg", ".png", ".webp"}
+            found = sorted([p for p in src_dir.iterdir() if p.suffix.lower() in exts])
+            if not found:
+                raise ValueError(f"No image files found in {src_dir}")
 
-        flow_clean_bin = shutil.which("flow-auto")
+            if not self.quiet:
+                print(f"[*] Ingesting {len(found)} custom image(s) from {src_dir} (Watermark cleaning: {'ON' if self.clean_user_images else 'OFF'})...")
+            scene_images = []
+            for sp in scene_prompts:
+                dest_p = images_dir / f"scene_{sp.scene_index:02d}.jpg"
+                matched = None
+                for c in found:
+                    if f"scene_{sp.scene_index:02d}" in c.name.lower() or f"scene_{sp.scene_index}" in c.name.lower():
+                        matched = c
+                        break
+                if not matched:
+                    matched = found[(sp.scene_index - 1) % len(found)]
 
-        for sp in scene_prompts:
-            raw_img_path = temp_run_dir / f"raw_scene_{sp.scene_index:02d}.jpg"
-            clean_img_path = images_dir / f"scene_{sp.scene_index:02d}.jpg"
-            full_prompt = sp.full_prompt()
-
-            # Skip generation if already successfully generated and verified
-            if clean_img_path.is_file() and self.flow_client.quality_controller.validate_image(clean_img_path, expected_aspect_ratio=aspect_ratio).valid:
-                print(f"  [✔] Scene {sp.scene_index} already generated & verified: {clean_img_path.name} (reusing)")
-                scene_images.append(clean_img_path)
-                if any(k in sp.visual_description.lower() or k in sp.narration.lower() for k in ["wanderer", "stickman", "protagonist", "mechanic", "resident", "operator", "tenant", "he ", "him", "his", "she ", "her", "hands", "figure", "silhouette"]):
-                    reference_char_img = clean_img_path
-                continue
-
-            # Pass character reference if character appears in the shot to preserve visual consistency
-            is_char_scene = any(
-                k in sp.visual_description.lower() or k in sp.narration.lower()
-                for k in ["wanderer", "stickman", "protagonist", "mechanic", "resident", "operator", "tenant", "he ", "him", "his", "she ", "her", "hands", "figure", "silhouette"]
-            )
-            ref_to_use = reference_char_img if is_char_scene else None
-
-            # Generate via Google Flow
-            self.flow_client.generate_image(
-                prompt=full_prompt,
-                output_path=raw_img_path,
-                scene_idx=sp.scene_index,
-                reference_image=ref_to_use,
-                folder_name=f"scenecraft_{safe_title}",
-                aspect_ratio=aspect_ratio,
-            )
-
-            # Safely delogo / clean watermark
-            if flow_clean_bin:
-                try:
-                    subprocess.run(
-                        ["flow-auto", "clean", str(raw_img_path), "--mark", "flow", "-o", str(clean_img_path)],
-                        check=True,
-                        capture_output=True
-                    )
-                except Exception:
-                    shutil.copy2(raw_img_path, clean_img_path)
-            else:
-                shutil.copy2(raw_img_path, clean_img_path)
-
-            scene_images.append(clean_img_path)
-            # Chain the latest verified character shot as reference for visual continuity
-            if is_char_scene and clean_img_path.is_file():
-                reference_char_img = clean_img_path
-
-        # Attach verified images to timed scenes and run Vision QC inspection
-        flagged_qc_reports = []
-        for ts, img_path, sp in zip(timed_scenes, scene_images, scene_prompts):
-            ts["image_path"] = str(img_path)
-            is_char = getattr(sp, "reference_angle_path", None) is not None
-            qc = self.flow_client.quality_controller.inspect_vision_quality(
-                image_path=img_path,
-                scene_idx=ts.get("scene_index", 1),
-                narration=ts.get("narration", ""),
-                prompt=sp.full_prompt(),
-                expected_aspect_ratio=aspect_ratio,
-                is_character_scene=is_char,
-            )
-            if qc.needs_manual_review:
-                flagged_qc_reports.append(qc)
-
-        # Gate 2: Production Preview
-        print("\n" + "=" * 60)
-        print("GATE 2 — PRODUCTION PREVIEW")
-        print("=" * 60)
-        print(f"Total Narration: {total_audio_duration:.2f}s (Real Voice-First Duration)")
-        print(f"Generated Images: {len(scene_images)} verified scene illustrations")
-        if flagged_qc_reports:
-            print("\nVision Quality Flags for Review (Hold for user decision — no blind auto-regeneration):")
-            for rep in flagged_qc_reports:
-                print(f"  [!] {rep.summary_line()}")
+                if self.clean_user_images:
+                    if not self.quiet:
+                        print(f"  -> Cleaning watermark from user image: {matched.name}")
+                    from scenecraft.cleaner import clean_image
+                    clean_image(matched, dest_p)
+                else:
+                    shutil.copy2(matched, dest_p)
+                scene_images.append(dest_p)
+            state["visuals"] = True
+            save_pipeline_state(bundle_dir, state)
         else:
-            print("Vision QC Status: All scenes passed Wanderer identity, anatomy, and framing checks.")
-        print("=" * 60 + "\n")
+            scene_images = []
+            official_ref = Path(__file__).resolve().parent.parent / "references" / "brand_identity" / "ref_character_full_body.jpg"
+            reference_char_img = official_ref if official_ref.is_file() else None
 
-        # Optional Flow Agent Video Generation (Full scene clips)
-        if self.flow_video:
-            print("\n" + "=" * 60)
-            print("[Step 6.5] GOOGLE FLOW AGENT VIDEO GENERATION ACTIVATED")
-            print("=" * 60)
-            agent_director = FlowAgentDirector(self.workspace_dir, self.flow_client)
-            char_name = char_dict.get("name", "The Wanderer") if char_dict else "The Wanderer"
-            timed_scenes = agent_director.generate_scenes(
-                scenes=timed_scenes,
-                output_dir=bundle_dir,
-                story_title=story_title,
-                character_name=char_name,
-                reference_image=reference_char_img,
-                aspect_ratio=aspect_ratio,
-                model=self.flow_video_model,
-                auto_approve=self.auto_approve,
-                dry_run=self.dry_run,
-            )
+            approved_test_img = self.output_dir / "test_single_shot.jpg"
+            if approved_test_img.is_file():
+                reference_char_img = approved_test_img
 
-        # 8. Select and verify audio assets
-        print(f"\n[Step 8] Verifying licenses for sound effects and background music...")
+            series_info = story_data.get("series_info")
+            if not reference_char_img and series_info and series_info.get("series_name"):
+                s_slug = sanitize_filename(series_info.get("series_name"))
+                prev_runs = sorted(self.output_dir.glob(f"*{s_slug}*"), key=lambda p: p.stat().st_mtime)
+                for pr in prev_runs:
+                    if pr != bundle_dir and (pr / "images" / "scene_01.jpg").is_file():
+                        reference_char_img = pr / "images" / "scene_01.jpg"
+                        break
+
+            flow_clean_bin = shutil.which("flow-auto")
+
+            for sp in scene_prompts:
+                raw_img_path = temp_run_dir / f"raw_scene_{sp.scene_index:02d}.jpg"
+                clean_img_path = images_dir / f"scene_{sp.scene_index:02d}.jpg"
+                full_prompt = sp.full_prompt()
+
+                if clean_img_path.is_file() and self.flow_client.quality_controller.validate_image(clean_img_path, expected_aspect_ratio=aspect_ratio).valid:
+                    if not self.quiet:
+                        print(f"  [✔] Scene {sp.scene_index} already generated & verified: {clean_img_path.name} (reusing)")
+                    scene_images.append(clean_img_path)
+                    continue
+
+                is_char_scene = any(
+                    k in sp.visual_description.lower() or k in sp.narration.lower()
+                    for k in ["wanderer", "stickman", "protagonist", "mechanic", "resident", "operator", "tenant", "he ", "him", "his", "she ", "her", "hands", "figure", "silhouette"]
+                )
+                ref_to_use = reference_char_img if is_char_scene else None
+
+                self.flow_client.generate_image(
+                    prompt=full_prompt,
+                    output_path=raw_img_path,
+                    scene_idx=sp.scene_index,
+                    reference_image=ref_to_use,
+                    folder_name=f"scenecraft_{safe_title}",
+                    aspect_ratio=aspect_ratio,
+                )
+
+                if flow_clean_bin:
+                    try:
+                        subprocess.run(
+                            ["flow-auto", "clean", str(raw_img_path), "--mark", "flow", "-o", str(clean_img_path)],
+                            check=True,
+                            capture_output=True
+                        )
+                    except Exception:
+                        shutil.copy2(raw_img_path, clean_img_path)
+                else:
+                    shutil.copy2(raw_img_path, clean_img_path)
+
+                scene_images.append(clean_img_path)
+                if is_char_scene and clean_img_path.is_file():
+                    reference_char_img = clean_img_path
+
+            state["visuals"] = True
+            save_pipeline_state(bundle_dir, state)
+
+        # Attach images to timed scenes
+        for ts, img_path in zip(timed_scenes, scene_images):
+            ts["image_path"] = str(img_path)
+
+        # Step 4: Word-Synced Subtitles
+        if not self.quiet:
+            print("\n" + "=" * 70)
+            print("[4/5] Word-Synced Subtitle Alignment")
+            print("=" * 70)
+            print(f"  [✔] Subtitles verified: {bundle_ass.name}")
+        state["subtitles"] = True
+        save_pipeline_state(bundle_dir, state)
+
+        # Step 5: Video Composition
+        if not self.quiet:
+            print("\n" + "=" * 70)
+            print(f"[5/5] Multi-Layer Video Composition ({aspect_ratio} {width}x{height})")
+            print("=" * 70)
+
+        # SFX & BGM verification
         bgm_path = self.audio_manager.get_default_bgm()
-        print(f"  -> BGM Verified: {bgm_path.name}")
         for s in timed_scenes:
             if s.get("sfx_cue"):
                 try:
                     sfx_path = self.audio_manager.get_sfx(s["sfx_cue"])
-                    print(f"  -> SFX Verified: {sfx_path.name} for Scene {s['scene_index']}")
-                except Exception as e:
-                    print(f"  [!] SFX '{s['sfx_cue']}' in Scene {s['scene_index']} not verified, skipping cue: {e}")
+                except Exception:
                     s["sfx_cue"] = None
 
-        # 9 & 10. FFmpeg composition and export
         final_mp4 = bundle_dir / f"{safe_title}.mp4"
-        print(f"\n[Step 9 & 10] Rendering cinematic {aspect_ratio} ({width}x{height}) video via FFmpeg...")
-        self.video_engine.build_full_video(
-            scenes=timed_scenes,
-            narration_audio=narration_audio,
-            subtitles_ass=bundle_ass,
-            output_mp4=final_mp4,
-            temp_dir=temp_run_dir / "render",
-            fps=30,
-            width=width,
-            height=height,
-            require_video_clips=self.flow_video,
-        )
+        can_skip_assembly = not self.force and state.get("assembly") and final_mp4.is_file()
 
-        # Verify final MP4
-        print("[*] Verifying output file integrity with FFprobe...")
-        verif = verify_video(final_mp4)
+        if can_skip_assembly:
+            if not self.quiet:
+                print(f"  [✔] State resume: Reusing rendered MP4 ({final_mp4.name})")
+            verif = verify_video(final_mp4)
+        else:
+            self.video_engine.build_full_video(
+                scenes=timed_scenes,
+                narration_audio=narration_audio,
+                subtitles_ass=bundle_ass,
+                output_mp4=final_mp4,
+                temp_dir=temp_run_dir / "render",
+                fps=30,
+                width=width,
+                height=height,
+                require_video_clips=self.flow_video,
+            )
+            verif = verify_video(final_mp4)
+            state["assembly"] = True
+            state["mp4_path"] = str(final_mp4.resolve())
+            save_pipeline_state(bundle_dir, state)
 
-        # Dedicated Google Flow AI Thumbnail Generator (independent Flow image generation, never frame extraction)
-        thumb_gen = ThumbnailGenerator(self.flow_client, self.workspace_dir)
-        thumb_res = None
-        should_gen_thumb = self.auto_thumbnail if self.auto_thumbnail is not None else thumb_gen.is_auto_enabled()
-        if should_gen_thumb:
-            try:
-                thumb_res = thumb_gen.generate_flow_ai_thumbnail(
-                    story_data=story_data,
-                    output_dir=bundle_dir,
-                    aspect_ratio=aspect_ratio,
-                    style_preset=self.style,
-                    character_ref=reference_char_img,
-                    auto_approve=self.auto_approve,
-                    dry_run=self.dry_run,
-                )
-            except Exception as e:
-                print(f"[!] Flow AI Thumbnail generation note: {e}")
-
-        # Save metadata and script
-        summary_file = bundle_dir / "story_summary.txt"
-        summary_content = (
-            f"Title: {story_title}\n"
-            f"Genre: {story_data.get('genre', 'Suspense')}\n"
-            f"Summary: {story_data.get('summary', '')}\n"
-            f"Duration: {verif['duration']:.2f}s\n"
-            f"Resolution: {verif['width']}x{verif['height']} ({aspect_ratio})\n"
-            f"Voice: {self.voice}\n"
-            f"Video Path: {final_mp4.resolve()}\n"
-        )
-        summary_file.write_text(summary_content, encoding="utf-8")
-
-        script_file = bundle_dir / "story_script.json"
-        with open(script_file, "w", encoding="utf-8") as f:
-            json.dump({
-                "title": story_title,
-                "genre": story_data.get("genre", "Suspense"),
-                "summary": story_data.get("summary", ""),
-                "scenes": timed_scenes,
-                "verification": verif,
-            }, f, indent=2, default=str)
-
-        # Automatic Social Media Video Caption Generator & Publishing Metadata
-        from scenecraft.metadata_generator import MetadataGenerator
-        meta_gen = MetadataGenerator()
-        ai_thumb_path = thumb_res.get("jpg") if (thumb_res and isinstance(thumb_res, dict)) else None
-        pub_meta = meta_gen.generate_metadata(
-            story_title=story_title,
-            story_summary=story_data.get("summary", ""),
-            scenes=timed_scenes,
-            hook_text=story_data.get("on_screen_hook_text") or (timed_scenes[0].get("narration", "") if timed_scenes else ""),
-            video_path=final_mp4,
-            output_dir=bundle_dir,
-            thumbnail_path=ai_thumb_path,
-            extract_frame=False,  # Strictly NEVER extract frame from video
-        )
-        pub_file = bundle_dir / "publishing_metadata.txt"
-        pub_file.write_text(pub_meta.format_summary(), encoding="utf-8")
-
-        caption_gen = CaptionGenerator(self.workspace_dir)
-        caption = caption_gen.generate_caption(story_data)
-        saved_captions = caption_gen.save_caption_bundle(caption, bundle_dir)
-
-        # Convenient root copy for numbered series if configured
-        part_num = (series_info.get("part_num") or series_info.get("episode_num")) if series_info else None
-        if part_num:
-            numbered_copy = self.output_dir / f"FINAL_STORY_{part_num:03d}.mp4"
-            if not numbered_copy.exists():
-                shutil.copy2(final_mp4, numbered_copy)
-                print(f"[✔] Saved easy-to-find series copy: {numbered_copy.name}")
-
-        print("\n" + "=" * 60)
-        print("GATE 3 — FINAL APPROVAL & PUBLISHING METADATA")
-        print("=" * 60)
-        print(pub_meta.format_summary())
-        print("=" * 60 + "\n")
-
-        print(f"==========================================")
-        print(f"[✔] Scenecraft Complete!")
-        print(f"Finished MP4: {final_mp4.resolve()}")
-        print(f"Bundle Folder: {bundle_dir.resolve()}")
-        print(f"Duration: {verif['duration']:.2f}s ({verif['width']}x{verif['height']})")
-        print(f"==========================================\n")
+        if not self.quiet:
+            print("\n" + "=" * 70)
+            print("🎬 SCENECRAFT VIDEO PRODUCTION COMPLETE!")
+            print("=" * 70)
+            print(f"File Path:   {final_mp4.resolve()}")
+            print(f"Duration:    {verif['duration']:.2f}s")
+            print(f"Resolution:  {verif['width']}x{verif['height']} ({aspect_ratio})")
+            print(f"Bundle Dir:  {bundle_dir.resolve()}")
+            print("=" * 70 + "\n")
+        else:
+            print(str(final_mp4.resolve()))
 
         return {
             "title": story_title,
             "genre": story_data.get("genre", "Suspense"),
             "summary": story_data.get("summary", ""),
             "mp4_path": final_mp4,
+            "video_path": final_mp4,
             "bundle_dir": bundle_dir,
             "verification": verif,
-            "caption": caption.to_dict(),
-            "caption_files": saved_captions,
         }

@@ -1,0 +1,33 @@
+{
+  "title": "Station 9 Lockdown",
+  "genre": "survival_suspense",
+  "aspect_ratio": "9:16",
+  "opening_hook": "When the siren began, the station went dark.",
+  "summary": "An emergency lockdown on Station 9 seals the doors, but the crew discovers something was trapped inside with them.",
+  "scenes": [
+    {
+      "scene_index": 1,
+      "title": "The Darkening",
+      "narration": "When the siren began, the station went dark.",
+      "duration": 5.0,
+      "visual_description": "A lone survivor in a shadowy concrete bunker illuminated by the amber glow of failing instrument terminals.",
+      "shot_type": "MEDIUM_SHOT",
+      "camera_movement": "zoom_in",
+      "lighting_and_atmosphere": "Dim amber emergency glow with heavy shadows",
+      "sfx_cue": "sfx_alarm",
+      "transition_out": "crossfade"
+    },
+    {
+      "scene_index": 2,
+      "title": "The Sealed Hatch",
+      "narration": "We locked the blast doors, but we were not alone.",
+      "duration": 5.0,
+      "visual_description": "Massive reinforced iron blast door sealed shut under flashing red strobe lights in an industrial hallway.",
+      "shot_type": "CLOSE_UP",
+      "camera_movement": "pan_up",
+      "lighting_and_atmosphere": "Pulsing crimson warning strobes",
+      "sfx_cue": "sfx_door_lock",
+      "transition_out": "fade_black"
+    }
+  ]
+}
