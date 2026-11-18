@@ -39,3 +39,14 @@ Scenecraft bundles or integrates with several open-source libraries, models, and
 ### 6. ONNX Runtime
 - **Repository:** [microsoft/onnxruntime](https://github.com/microsoft/onnxruntime)
 - **License:** MIT License
+
+### 7. Kokoro-82M TTS & kokoro-onnx
+- **Model:** [hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M)
+- **ONNX Implementation:** [thewh1teagle/kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx)
+- **License:** Apache License 2.0
+- **Usage:** Downloaded on demand via `scenecraft setup --tts kokoro`. Not committed to git.
+
+### 8. Piper TTS
+- **Repository:** [rhasspy/piper](https://github.com/rhasspy/piper)
+- **License:** MIT License / Apache License 2.0 (voices)
+- **Usage:** Optional local TTS engine. Downloaded on demand via `scenecraft setup --tts piper`. Not committed to git.

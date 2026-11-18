@@ -187,20 +187,52 @@ class SystemDoctor:
 
     def check_tts(self) -> DiagnosticCheck:
         from scenecraft.tts.omnivoice import OmniVoiceTTS
+        from scenecraft.tts.kokoro import KokoroTTS
         from scenecraft.tts.edge_tts import EdgeTTS
+        from scenecraft.tts.piper import PiperTTS
+        from scenecraft.tts.elevenlabs import ElevenLabsTTS
+        from scenecraft.tts.openai import OpenAITTS
 
         omni = OmniVoiceTTS(base_url=self.cfg.tts_base_url)
+        kokoro = KokoroTTS()
         edge = EdgeTTS()
+        piper = PiperTTS()
+        eleven = ElevenLabsTTS()
+        openai = OpenAITTS()
 
+        engines_ready = []
         if omni.is_available():
-            return DiagnosticCheck("TTS Audio Engine", "OK", f"OmniVoice active on {self.cfg.tts_base_url} (Voice: {self.cfg.voice_id})")
+            engines_ready.append("OmniVoice (:3900)")
+        if kokoro.is_available():
+            engines_ready.append("Kokoro (offline ONNX)")
         if edge.is_available():
-            return DiagnosticCheck("TTS Audio Engine", "OK", f"Edge-TTS available as zero-setup fallback (OmniVoice offline on {self.cfg.tts_base_url})")
+            engines_ready.append("Edge-TTS (cloud, requires internet)")
+        if piper.is_available():
+            engines_ready.append("Piper (local binary)")
+        if eleven.is_available():
+            engines_ready.append("ElevenLabs (paid API)")
+        if openai.is_available():
+            engines_ready.append("OpenAI (paid API)")
+
+        if engines_ready:
+            active_info = f"Ready: {', '.join(engines_ready)} (active config: {self.cfg.tts_engine})"
+            return DiagnosticCheck("TTS Audio Engines", "OK", active_info)
+
+        # None ready: provide actionable hint
+        missing_hints = []
+        if not kokoro.is_package_installed():
+            missing_hints.append("pip install \"scenecraft[kokoro]\"")
+        elif not kokoro.is_available():
+            missing_hints.append("scenecraft setup --tts kokoro")
+        if not edge.is_available():
+            missing_hints.append("pip install edge-tts")
+
+        hint_str = " | ".join(missing_hints) or "Run: scenecraft setup --tts kokoro"
         return DiagnosticCheck(
-            "TTS Audio Engine",
+            "TTS Audio Engines",
             "WARN",
-            "Neither OmniVoice (:3900) nor edge-tts reachable",
-            hint="Install edge-tts via: pip install edge-tts",
+            "No voice engine currently ready (Kokoro offline / Edge-TTS uninstalled / OmniVoice offline)",
+            hint=hint_str,
         )
 
     def check_extension_bridge(self) -> DiagnosticCheck:

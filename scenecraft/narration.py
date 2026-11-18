@@ -62,168 +62,86 @@ def synthesize_scene_narration(
     delivery_style: Optional[str] = None,
 ) -> float:
     """Generate audio and subtitle file for scene, returning duration in seconds."""
+    out_audio = Path(out_audio).resolve()
+    out_vtt = Path(out_vtt).resolve()
     out_audio.parent.mkdir(parents=True, exist_ok=True)
     out_vtt.parent.mkdir(parents=True, exist_ok=True)
 
     if out_audio.is_file() and out_audio.stat().st_size > 0 and out_vtt.is_file() and out_vtt.stat().st_size > 0:
         return get_audio_duration(out_audio)
 
-    # 1. Primary check: VoiceStudio Permanent Narrator integration
-    from scenecraft.voicestudio_client import VoiceStudioClient, get_scene_delivery_params
-    vs_client = VoiceStudioClient()
-    v_lower = voice.lower()
-    hex_id = bool(re.match(r"^[0-9a-f]{8}$", v_lower))
+    cfg = get_config()
+    from scenecraft.tts import get_tts_engine
 
-    is_voicestudio_target = (
-        voice in ["default", "permanent", DEFAULT_VOICE, "voicestudio", "candidate", "rooftop"]
-        or v_lower.startswith("voicestudio")
-        or v_lower.startswith("vs:")
-        or hex_id
+    # Check if a specific engine was targeted via voice prefix (e.g. "kokoro:af_heart", "eleven:...", "vs:...")
+    chosen_engine_name = None
+    target_voice = voice
+
+    if voice and ":" in voice:
+        prefix, remainder = voice.split(":", 1)
+        if prefix.lower() in ("kokoro", "omnivoice", "voicestudio", "vs", "edge", "edge-tts", "piper", "elevenlabs", "openai"):
+            chosen_engine_name = "omnivoice" if prefix.lower() == "vs" else prefix.lower()
+            target_voice = remainder.strip()
+    elif voice and voice.lower().startswith("kokoro_"):
+        chosen_engine_name = "kokoro"
+        target_voice = voice.lower().replace("kokoro_", "")
+    elif voice and voice.lower().startswith("eleven_"):
+        chosen_engine_name = "elevenlabs"
+        target_voice = voice.lower().replace("eleven_", "")
+    elif voice and (re.match(r"^[0-9a-f]{8}$", voice.lower()) or voice.lower() in ("rooftop", "rooftop_survivor", "candidate")):
+        chosen_engine_name = "omnivoice"
+        target_voice = voice.lower()
+
+    # If OmniVoice is explicitly requested but offline, raise clear error
+    if chosen_engine_name in ("omnivoice", "voicestudio"):
+        from scenecraft.tts.omnivoice import OmniVoiceTTS
+        omni = OmniVoiceTTS()
+        if not omni.is_available():
+            raise RuntimeError(
+                f"VoiceStudio is required for profile '{voice}' but the service is not running on port 3900. "
+                "Start VoiceStudio, or use 'tts_engine: auto' or 'scenecraft setup --tts kokoro' to use local Kokoro TTS."
+            )
+        engine = omni
+    else:
+        engine = get_tts_engine(chosen_engine_name or cfg.tts_engine)
+
+    # Calculate numeric speed multiplier
+    speed_val = base_speed or cfg.voice_speed
+    if rate and rate != DEFAULT_RATE:
+        try:
+            m = re.match(r"^([+-]?\d+)%$", rate.strip())
+            if m:
+                speed_val = max(0.5, min(2.0, 1.0 + float(m.group(1)) / 100.0))
+        except Exception:
+            pass
+
+    dur = engine.generate(
+        text=text,
+        output_path=out_audio,
+        voice=target_voice if target_voice not in ("default", "permanent") else None,
+        speed=speed_val,
     )
 
-    if is_voicestudio_target:
-        if not vs_client.is_available():
-            raise RuntimeError(
-                f"VoiceStudio is required for profile '{voice}' but the VoiceStudio service is not available on port 3900. "
-                "Per user policy: Scenecraft will not silently switch to another TTS provider. Start VoiceStudio to proceed."
-            )
+    def _fmt_vtt_ts(secs: float) -> str:
+        h = int(secs // 3600)
+        m = int((secs % 3600) // 60)
+        s = secs % 60
+        return f"{h:02d}:{m:02d}:{s:06.3f}"
 
-        if ":" in voice:
-            vs_voice = voice.split(":", 1)[1].strip()
-        elif hex_id:
-            vs_voice = v_lower
-        elif v_lower in ["permanent", "default", "candidate", "rooftop", "rooftop_survivor"]:
-            vs_voice = get_config().voice_id
-        elif v_lower in ["documentarian"]:
-            vs_voice = "b77c1cca"
-        else:
-            vs_voice = get_config().voice_id
-        if not vs_voice:
-            vs_voice = get_config().voice_id
+    words_list = text.split()
+    total_words = len(words_list)
+    chunk_size = 4
+    chunks = [words_list[i:i + chunk_size] for i in range(0, total_words, chunk_size)]
+    n_chunks = max(1, len(chunks))
+    with open(out_vtt, "w", encoding="utf-8") as f:
+        f.write("WEBVTT\n\n")
+        for ci, chunk in enumerate(chunks):
+            t_start = ci * dur / n_chunks
+            t_end = (ci + 1) * dur / n_chunks
+            f.write(f"{_fmt_vtt_ts(t_start)} --> {_fmt_vtt_ts(t_end)}\n")
+            f.write(" ".join(chunk) + "\n\n")
 
-        delivery = get_scene_delivery_params(
-            emotion=emotion,
-            tension_level=tension_level,
-            base_speed=base_speed,
-            delivery_style=delivery_style,
-        )
-        try:
-            dur = vs_client.generate_speech(
-                text=text,
-                output_path=out_audio,
-                voice=vs_voice,
-                speed=delivery["speed"],
-                instructions=delivery["instructions"],
-                response_format="wav",
-            )
-        except Exception as err:
-            raise RuntimeError(
-                f"VoiceStudio synthesis failed for profile '{vs_voice}': {err}. "
-                "Per user policy: Scenecraft will not silently switch to another TTS provider."
-            ) from err
-
-        def _fmt_vtt_ts(secs: float) -> str:
-            h = int(secs // 3600)
-            m = int((secs % 3600) // 60)
-            s = secs % 60
-            return f"{h:02d}:{m:02d}:{s:06.3f}"
-
-        words_list = text.split()
-        total_words = len(words_list)
-        chunk_size = 4
-        chunks = [words_list[i:i + chunk_size] for i in range(0, total_words, chunk_size)]
-        n_chunks = max(1, len(chunks))
-        with open(out_vtt, "w", encoding="utf-8") as f:
-            f.write("WEBVTT\n\n")
-            for ci, chunk in enumerate(chunks):
-                t_start = ci * dur / n_chunks
-                t_end = (ci + 1) * dur / n_chunks
-                f.write(f"{_fmt_vtt_ts(t_start)} --> {_fmt_vtt_ts(t_end)}\n")
-                f.write(" ".join(chunk) + "\n\n")
-        return dur
-
-    # Check for Kokoro voice integration
-    v_clean = voice.lower().replace("kokoro_", "").strip()
-    from scenecraft.kokoro_engine import ALL_TEST_VOICES
-    if v_clean in ALL_TEST_VOICES or voice.lower().startswith("kokoro_"):
-        from scenecraft.kokoro_engine import KokoroEngine
-        engine = KokoroEngine()
-        voice_id = v_clean if v_clean in ALL_TEST_VOICES else "am_onyx"
-        dur = engine.synthesize(text=text, output_wav=out_audio, voice=voice_id)
-
-        def _fmt_vtt_ts(secs: float) -> str:
-            h = int(secs // 3600)
-            m = int((secs % 3600) // 60)
-            s = secs % 60
-            return f"{h:02d}:{m:02d}:{s:06.3f}"
-
-        words_list = text.split()
-        total_words = len(words_list)
-        chunk_size = 4
-        chunks = [words_list[i:i + chunk_size] for i in range(0, total_words, chunk_size)]
-        n_chunks = max(1, len(chunks))
-        with open(out_vtt, "w", encoding="utf-8") as f:
-            f.write("WEBVTT\n\n")
-            for ci, chunk in enumerate(chunks):
-                t_start = ci * dur / n_chunks
-                t_end = (ci + 1) * dur / n_chunks
-                f.write(f"{_fmt_vtt_ts(t_start)} --> {_fmt_vtt_ts(t_end)}\n")
-                f.write(" ".join(chunk) + "\n\n")
-        return dur
-
-    # Check for ElevenLabs voice integration
-    v_clean = voice.lower().replace("eleven_", "").strip()
-    from scenecraft.elevenlabs_client import ElevenLabsClient, CURATED_NARRATIVE_VOICES
-    el_client = ElevenLabsClient()
-
-    if el_client.is_configured() and (v_clean in CURATED_NARRATIVE_VOICES or len(voice) >= 20):
-        voice_id = CURATED_NARRATIVE_VOICES[v_clean]["voice_id"] if v_clean in CURATED_NARRATIVE_VOICES else voice
-        el_client.generate_narration(text=text, output_path=out_audio, voice_id=voice_id)
-        dur = get_audio_duration(out_audio)
-        # Write a proper word-distributed VTT as fallback (Whisper will override this in generate_scene_ass_dialogues)
-        # Use correct H:MM:SS.mmm timestamp format to avoid malformed VTT when dur > 60s
-        def _fmt_vtt_ts(secs: float) -> str:
-            h = int(secs // 3600)
-            m = int((secs % 3600) // 60)
-            s = secs % 60
-            return f"{h:02d}:{m:02d}:{s:06.3f}"
-
-        # Distribute text into ~4-word sentence chunks evenly across duration
-        words_list = text.split()
-        total_words = len(words_list)
-        chunk_size = 4
-        chunks = [words_list[i:i + chunk_size] for i in range(0, total_words, chunk_size)]
-        n_chunks = len(chunks)
-        with open(out_vtt, "w", encoding="utf-8") as f:
-            f.write("WEBVTT\n\n")
-            for ci, chunk in enumerate(chunks):
-                t_start = ci * dur / n_chunks
-                t_end = (ci + 1) * dur / n_chunks
-                f.write(f"{_fmt_vtt_ts(t_start)} --> {_fmt_vtt_ts(t_end)}\n")
-                f.write(" ".join(chunk) + "\n\n")
-        return dur
-
-    edge_bin = shutil.which("edge-tts") or "edge-tts"
-    cmd = [
-        edge_bin,
-        "--voice", voice,
-        "--rate", rate,
-        "--pitch", pitch,
-        "--text", text,
-        "--write-media", str(out_audio),
-        "--write-subtitles", str(out_vtt),
-    ]
-
-    import time
-    last_err = ""
-    for attempt in range(4):
-        res = subprocess.run(cmd, capture_output=True, text=True)
-        if res.returncode == 0 and out_audio.is_file() and out_audio.stat().st_size > 0:
-            return get_audio_duration(out_audio)
-        last_err = res.stderr or res.stdout
-        time.sleep(1.2 * (attempt + 1))
-
-    raise RuntimeError(f"edge-tts failed after 4 retries:\n{last_err}")
+    return dur
 
 
 def _get_whisper_python() -> Optional[str]:

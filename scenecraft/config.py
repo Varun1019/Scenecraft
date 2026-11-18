@@ -24,12 +24,43 @@ except ImportError:
     yaml = None
 
 
+def load_dotenv(env_path: Optional[Path | str] = None) -> None:
+    """Read key-value pairs from .env into os.environ without overwriting existing vars."""
+    paths = [
+        Path(env_path) if env_path else None,
+        Path.cwd() / ".env",
+        DEFAULT_DATA_DIR / ".env",
+    ]
+    for p in paths:
+        if p and p.is_file():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith("#") or "=" not in line:
+                            continue
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip("'\"")
+                        if k and k not in os.environ:
+                            os.environ[k] = v
+                break
+            except Exception:
+                pass
+
+
 @dataclass
 class ScenecraftConfig:
     # TTS & Voice
-    tts_engine: str = "omnivoice"  # "omnivoice", "edge_tts", "piper"
+    tts_engine: str = "auto"  # "auto", "omnivoice", "kokoro", "piper", "edge-tts", "elevenlabs", "openai"
     tts_base_url: str = "http://127.0.0.1:3900"
     voice_id: str = "6f7af622"
+    kokoro_voice: str = "af_heart"
+    kokoro_model: str = "kokoro-v1.0.int8.onnx"
+    edge_voice: str = "en-US-AndrewMultilingualNeural"
+    piper_voice: str = "en_US-lessac-medium"
+    elevenlabs_voice: str = "21m00Tcm4TlvDq8ikWAM"
+    openai_voice: str = "alloy"
     voice_speed: float = 0.90
     voice_style: str = "natural"
 
@@ -59,7 +90,8 @@ class ScenecraftConfig:
 
     @classmethod
     def load(cls, config_path: Optional[Path | str] = None) -> ScenecraftConfig:
-        """Load configuration from config.yaml, environment, and defaults."""
+        """Load configuration from config.yaml, .env, environment, and defaults."""
+        load_dotenv()
         cfg_dict: Dict[str, Any] = {}
 
         # 1. Locate config.yaml
@@ -82,6 +114,24 @@ class ScenecraftConfig:
                     loaded = yaml.safe_load(f)
                     if isinstance(loaded, dict):
                         cfg_dict = loaded
+                        # Flatten nested tts dictionary if present
+                        if isinstance(cfg_dict.get("tts"), dict):
+                            tts_sub = cfg_dict.pop("tts")
+                            if "engine" in tts_sub:
+                                cfg_dict["tts_engine"] = tts_sub["engine"]
+                            if "base_url" in tts_sub:
+                                cfg_dict["tts_base_url"] = tts_sub["base_url"]
+                            if "voice_id" in tts_sub:
+                                cfg_dict["voice_id"] = tts_sub["voice_id"]
+                            for k, v in tts_sub.items():
+                                if k not in cfg_dict:
+                                    cfg_dict[k] = v
+                        # Flatten nested video dictionary if present
+                        if isinstance(cfg_dict.get("video"), dict):
+                            vid_sub = cfg_dict.pop("video")
+                            for k, v in vid_sub.items():
+                                if k not in cfg_dict:
+                                    cfg_dict[k] = v
             except Exception as e:
                 print(f"[!] Warning: Failed to parse config file {found_path}: {e}")
 

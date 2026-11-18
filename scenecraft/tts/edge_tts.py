@@ -17,6 +17,20 @@ class EdgeTTS(BaseTTS):
     """Microsoft Edge Neural Speech synthesizer via edge-tts CLI or library."""
 
     DEFAULT_VOICE = "en-US-AndrewMultilingualNeural"
+    engine_name = "edge-tts"
+
+    def list_voices(self) -> list[str]:
+        return [
+            "en-US-AndrewMultilingualNeural",
+            "en-US-AvaNeural",
+            "en-US-BrianMultilingualNeural",
+            "en-US-ChristopherNeural",
+            "en-US-EmmaMultilingualNeural",
+            "en-US-GuyNeural",
+            "en-US-JennyNeural",
+            "en-GB-SoniaNeural",
+            "en-GB-RyanNeural",
+        ]
 
     def is_available(self) -> bool:
         """Check if edge-tts is available as package or CLI."""

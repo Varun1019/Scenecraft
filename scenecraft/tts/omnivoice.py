@@ -15,10 +15,21 @@ from scenecraft.voicestudio_client import VoiceStudioClient
 class OmniVoiceTTS(BaseTTS):
     """VoiceStudio / OmniVoice local daemon client running on configured port (default 3900)."""
 
+    engine_name = "omnivoice"
+
     def __init__(self, base_url: Optional[str] = None):
         cfg = get_config()
         self.base_url = (base_url or cfg.tts_base_url).rstrip("/")
         self.client = VoiceStudioClient(base_url=self.base_url)
+
+    def list_voices(self) -> list[str]:
+        if self.is_available():
+            try:
+                profiles = self.client.list_profiles()
+                return [f"{p.get('id')} ({p.get('name', 'Voice')})" for p in profiles]
+            except Exception:
+                pass
+        return ["6f7af622 (Rooftop Survivor)", "b77c1cca (Documentarian)"]
 
     def is_available(self) -> bool:
         """Check if local VoiceStudio / OmniVoice daemon is responding."""

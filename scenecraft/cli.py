@@ -302,9 +302,27 @@ def cmd_audit(args):
 
 
 def cmd_setup(args):
-    """Download LaMa ONNX and Whisper models with resumable progress."""
+    """Download LaMa ONNX, Kokoro, and Whisper models with resumable progress."""
     from scenecraft.setup_cmd import run_setup
-    code = run_setup(whisper_model=getattr(args, "whisper_model", "base"), force=getattr(args, "force", False))
+    code = run_setup(
+        whisper_model=getattr(args, "whisper_model", "base"),
+        force=getattr(args, "force", False),
+        tts=getattr(args, "tts", "kokoro"),
+        models_only=getattr(args, "models_only", False),
+        quantized=not getattr(args, "full", False),
+    )
+    if code != 0:
+        sys.exit(code)
+
+
+def cmd_voices(args):
+    """List available voice options or preview synthesis across engines."""
+    from scenecraft.voices_cmd import run_voices
+    code = run_voices(
+        engine=getattr(args, "engine", None),
+        preview=getattr(args, "preview", None),
+        voice=getattr(args, "voice", None),
+    )
     if code != 0:
         sys.exit(code)
 
@@ -1425,10 +1443,20 @@ def main():
     make_parser.set_defaults(func=cmd_make)
 
     # 'setup' subcommand
-    setup_parser = subparsers.add_parser("setup", help="Download LaMa ONNX and Whisper models with resumable progress")
+    setup_parser = subparsers.add_parser("setup", help="Download LaMa ONNX, Kokoro, and Whisper models with resumable progress")
+    setup_parser.add_argument("--tts", choices=["kokoro", "piper", "none"], default="kokoro", help="Default local TTS model to download (default: kokoro)")
+    setup_parser.add_argument("--full", action="store_true", help="Download full Kokoro fp32 model instead of int8 quantized")
+    setup_parser.add_argument("--models-only", action="store_true", help="Download models without prompting environment checks")
     setup_parser.add_argument("--whisper-model", type=str, default="base", help="Faster-Whisper model name (default: base)")
     setup_parser.add_argument("--force", action="store_true", help="Force re-download of existing models")
     setup_parser.set_defaults(func=cmd_setup)
+
+    # 'voices' subcommand
+    voices_parser = subparsers.add_parser("voices", help="List available voices or preview narration across engines")
+    voices_parser.add_argument("engine", nargs="?", default=None, choices=["kokoro", "edge_tts", "omnivoice", "piper", "elevenlabs", "openai"], help="Filter by engine")
+    voices_parser.add_argument("--preview", type=str, default=None, choices=["kokoro", "edge_tts", "omnivoice", "piper", "elevenlabs", "openai"], help="Synthesize a 2-second preview WAV for the given engine")
+    voices_parser.add_argument("--voice", type=str, default=None, help="Voice identifier to use for preview")
+    voices_parser.set_defaults(func=cmd_voices)
 
     # 'visuals' subcommand
     visuals_parser = subparsers.add_parser("visuals", help="Generate AI visual assets from project.json via Google Flow")

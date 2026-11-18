@@ -14,8 +14,13 @@ from scenecraft.narration import get_audio_duration
 class PiperTTS(BaseTTS):
     """Piper neural text-to-speech system for fast, local offline synthesis."""
 
+    engine_name = "piper"
+
     def is_available(self) -> bool:
         return shutil.which("piper") is not None
+
+    def list_voices(self) -> list[str]:
+        return ["en_US-lessac-medium", "en_US-libritts_r-medium", "en_GB-alan-medium"]
 
     def generate(
         self,

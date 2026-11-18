@@ -17,8 +17,12 @@ from typing import Optional
 from scenecraft.config import get_config
 
 LAMA_ONNX_URL = "https://huggingface.co/Carve/LaMa-ONNX/resolve/main/lama_fp32.onnx"
-# Known sha256 for Carve/LaMa-ONNX lama_fp32.onnx (or None to skip if upstream varies)
 LAMA_EXPECTED_SIZE = 208577317  # ~198.9 MB
+
+KOKORO_RELEASE_BASE = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1"
+KOKORO_INT8_SIZE = 114119327   # ~108.8 MB
+KOKORO_FP32_SIZE = 325505369   # ~310.4 MB
+KOKORO_VOICES_SIZE = 28214398  # ~26.9 MB
 
 
 def download_file_resumable(
@@ -111,15 +115,24 @@ def download_file_resumable(
     return True
 
 
-def run_setup(whisper_model: str = "base", force: bool = False) -> int:
-    """Download LaMa inpainting model and Whisper speech model."""
+def run_setup(
+    whisper_model: str = "base",
+    force: bool = False,
+    tts: str = "kokoro",
+    models_only: bool = False,
+    quantized: bool = True,
+) -> int:
+    """Download LaMa inpainting model, Whisper speech model, and selected TTS models."""
     cfg = get_config()
     models_dir = cfg.models_dir
     models_dir.mkdir(parents=True, exist_ok=True)
 
+    tts_choice = (tts or "kokoro").lower().strip()
+
     print("=" * 65)
     print("🛠  SCENECRAFT FIRST-TIME SETUP & MODEL PRE-CACHING")
     print(f"📁 Target Model Directory: {models_dir}")
+    print(f"🎙  Selected TTS Engine:    {tts_choice.upper()}")
     print("=" * 65)
 
     # 1. LaMa Inpainting ONNX Model
@@ -128,7 +141,9 @@ def run_setup(whisper_model: str = "base", force: bool = False) -> int:
         size_mb = lama_path.stat().st_size / (1024 * 1024)
         print(f"[✔] LaMa ONNX model already installed ({size_mb:.1f} MB): {lama_path.name}")
     else:
-        print(f"\n[*] Downloading LaMa neural inpainting model (~198 MB)...")
+        print(f"\n[*] Target File: {lama_path.name}")
+        print(f"[*] Size: ~{LAMA_EXPECTED_SIZE / (1024 * 1024):.1f} MB | License: Apache 2.0")
+        print("[*] Downloading LaMa neural inpainting model...")
         ok = download_file_resumable(
             url=LAMA_ONNX_URL,
             dest_path=lama_path,
@@ -139,17 +154,66 @@ def run_setup(whisper_model: str = "base", force: bool = False) -> int:
             return 1
 
     # 2. Faster-Whisper Speech Recognition Model
-    print(f"\n[*] Pre-caching faster-whisper model ('{whisper_model}')...")
-    try:
-        from faster_whisper import WhisperModel
-        whisper_dir = models_dir / "whisper"
-        whisper_dir.mkdir(parents=True, exist_ok=True)
-        # Initializes model which triggers download to cache directory
-        _ = WhisperModel(whisper_model, device="cpu", compute_type="int8", download_root=str(whisper_dir))
-        print(f"[✔] Faster-Whisper '{whisper_model}' model cached successfully.")
-    except Exception as e:
-        print(f"[!] Note: faster-whisper cache failed or offline: {e}")
-        print("    Faster-Whisper will download automatically on first run if internet is available.")
+    if not models_only:
+        print(f"\n[*] Pre-caching faster-whisper model ('{whisper_model}')...")
+        try:
+            from faster_whisper import WhisperModel
+            whisper_dir = models_dir / "whisper"
+            whisper_dir.mkdir(parents=True, exist_ok=True)
+            _ = WhisperModel(whisper_model, device="cpu", compute_type="int8", download_root=str(whisper_dir))
+            print(f"[✔] Faster-Whisper '{whisper_model}' model cached successfully.")
+        except Exception as e:
+            print(f"[!] Note: faster-whisper cache failed or offline: {e}")
+            print("    Faster-Whisper will download automatically on first run if internet is available.")
+
+    # 3. TTS Model Downloads
+    if tts_choice in ("kokoro", "kokoro-onnx"):
+        kokoro_dir = models_dir / "kokoro"
+        kokoro_dir.mkdir(parents=True, exist_ok=True)
+
+        model_filename = "kokoro-v1.0.int8.onnx" if quantized else "kokoro-v1.0.onnx"
+        model_size = KOKORO_INT8_SIZE if quantized else KOKORO_FP32_SIZE
+        model_url = f"{KOKORO_RELEASE_BASE}/{model_filename}"
+        model_dest = kokoro_dir / model_filename
+
+        voices_filename = "voices-v1.0.bin"
+        voices_size = KOKORO_VOICES_SIZE
+        voices_url = f"{KOKORO_RELEASE_BASE}/{voices_filename}"
+        voices_dest = kokoro_dir / voices_filename
+
+        print(f"\n[*] Downloading Kokoro-82M ONNX model ({'quantized int8' if quantized else 'fp32'})...")
+        print(f"    Model File: {model_filename} ({model_size / (1024 * 1024):.1f} MB) | License: Apache 2.0")
+        print(f"    Voices File: {voices_filename} ({voices_size / (1024 * 1024):.1f} MB)")
+
+        if model_dest.is_file() and not force:
+            print(f"[✔] Kokoro ONNX model already installed: {model_dest.name}")
+        else:
+            ok = download_file_resumable(url=model_url, dest_path=model_dest, expected_size=model_size)
+            if not ok:
+                print("[!] Failed to download Kokoro ONNX model.")
+                return 1
+
+        if voices_dest.is_file() and not force:
+            print(f"[✔] Kokoro voices file already installed: {voices_dest.name}")
+        else:
+            ok = download_file_resumable(url=voices_url, dest_path=voices_dest, expected_size=voices_size)
+            if not ok:
+                print("[!] Failed to download Kokoro voices file.")
+                return 1
+
+        # Check Python package
+        from scenecraft.tts.kokoro import KokoroTTS
+        k_tts = KokoroTTS()
+        if not k_tts.is_package_installed() and not models_only:
+            print("\n[*] Note: Python package 'kokoro-onnx' not yet installed.")
+            print("    Install it to enable Kokoro synthesis: pip install \"scenecraft[kokoro]\"")
+
+    elif tts_choice == "piper":
+        print("\n[*] Piper TTS selected. Piper binaries can be installed via package manager or:")
+        print("    https://github.com/rhasspy/piper/releases")
+        print("    Download voice onnx + json and point to them in config.yaml.")
+    elif tts_choice == "none":
+        print("\n[*] Skipping TTS model pre-caching (--tts none).")
 
     print("\n" + "=" * 65)
     print("🎉 Scenecraft setup complete! Run 'scenecraft doctor' to verify environment.")

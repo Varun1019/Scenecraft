@@ -30,6 +30,7 @@ cache/
 venv/
 env/
 ENV/
+uv.lock
 
 # Python caches & build artifacts
 __pycache__/
