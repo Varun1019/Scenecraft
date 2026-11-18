@@ -59,13 +59,19 @@ def run_demo(
         engine = get_tts_engine()
         full_text = " ".join(s["narration"] for s in proj_data["scenes"])
         engine.generate(full_text, narration_wav)
-        # Use bundled subtitles template for timing
         shutil.copy2(bundled_subs, subtitles_ass)
     else:
         if not quiet:
             print("[1/3] Loading bundled narration audio & word-synced subtitles...")
-        shutil.copy2(bundled_audio, narration_wav)
-        shutil.copy2(bundled_subs, subtitles_ass)
+        if bundled_audio.is_file():
+            shutil.copy2(bundled_audio, narration_wav)
+        else:
+            _generate_demo_audio(narration_wav)
+
+        if bundled_subs.is_file():
+            shutil.copy2(bundled_subs, subtitles_ass)
+        else:
+            _generate_demo_subtitles(subtitles_ass)
 
     # 2. Prepare scene assets
     if not quiet:
@@ -112,7 +118,6 @@ def run_demo(
             require_video_clips=False,
         )
     finally:
-        # Clean up intermediate render directory
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     # 4. Verify video stream decodability
@@ -136,3 +141,58 @@ def run_demo(
         print(str(final_mp4.resolve()))
 
     return 0
+
+
+def _generate_demo_audio(wav_path: Path):
+    """Fallback generator for demo narration audio if fixture is missing."""
+    import math
+    import struct
+    import wave
+    sample_rate = 16000
+    duration = 10.0
+    num_samples = int(sample_rate * duration)
+    wav_path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(wav_path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(sample_rate)
+        samples = []
+        for i in range(num_samples):
+            t = i / sample_rate
+            if 0.5 <= t <= 4.5:
+                env = math.sin((t - 0.5) / 4.0 * math.pi) * 0.7
+                f0 = 125.0 + 8.0 * math.sin(2 * math.pi * 1.5 * t)
+                val = math.sin(2 * math.pi * f0 * t) + 0.5 * math.sin(2 * math.pi * 2 * f0 * t)
+            elif 5.5 <= t <= 9.5:
+                env = math.sin((t - 5.5) / 4.0 * math.pi) * 0.7
+                f0 = 120.0 + 6.0 * math.sin(2 * math.pi * 1.5 * t)
+                val = math.sin(2 * math.pi * f0 * t) + 0.5 * math.sin(2 * math.pi * 2 * f0 * t)
+            else:
+                env = 0.0
+                val = 0.0
+            sample = int(env * val * 16000)
+            samples.append(struct.pack("<h", max(-32768, min(32767, sample))))
+        wf.writeframes(b"".join(samples))
+
+
+def _generate_demo_subtitles(ass_path: Path):
+    """Fallback generator for demo subtitle track if fixture is missing."""
+    content = """[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans,64,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,2,40,40,240,1
+Style: Highlight,Noto Sans,66,&H0000FFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,5,3,2,40,40,240,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.60,0:00:02.40,Default,,0,0,0,,When the siren began...
+Dialogue: 0,0:00:02.40,0:00:04.60,Highlight,,0,0,0,,the station went dark.
+Dialogue: 0,0:00:05.50,0:00:07.40,Default,,0,0,0,,We locked the blast doors...
+Dialogue: 0,0:00:07.40,0:00:09.60,Highlight,,0,0,0,,but we were not alone.
+"""
+    ass_path.parent.mkdir(parents=True, exist_ok=True)
+    ass_path.write_text(content, encoding="utf-8")
